@@ -6,12 +6,14 @@ const db = require("./db.js");
 const { compare, hash } = require("./bc"); //
 const cookieSession = require("cookie-session");
 const csurf = require("csurf");
-
-// do not think we need cookie parser
-// app.use(require("cookie-parser")());
-
-//const csurf = require("csurf");
+const { send } = require("./ses");
 const bodyParser = require("body-parser");
+
+const cryptoRandomString = require("crypto-random-string");
+const { json } = require("express");
+const secretCode = cryptoRandomString({
+    length: 2,
+});
 
 app.use(bodyParser.urlencoded({ extended: true })); // with extended:true you can hand over an object to the POST route (or any)!!!
 // the extended: true specifies that the req.body object will contain values of any type instead of just strings.
@@ -55,7 +57,72 @@ if (process.env.NODE_ENV != "production") {
 
 app.use(express.static("public"));
 
+app.post("/password/reset/start", (req, res) => {
+    console.log("reset route hit");
+    console.log("req.body", req.body);
+    const secretCode = cryptoRandomString({
+        length: 6,
+    });
+
+    const { email } = req.body;
+    db.addResetCode(email, secretCode)
+        .then((result) => {
+            console.log("email & reset code added to db");
+            console.log("RESET CODE IS", secretCode);
+            /////////// CHANGE AFTER TESTING EMAIL VARIABLE
+            send(
+                "mail@marianheidbreder.de",
+                "confirmation code for password reset",
+                secretCode
+            ).then(
+                res.json({
+                    success: true,
+                })
+            );
+        })
+        .catch(console.log("could not add RestCode to db or snd mail"));
+});
+
+app.post("/password/reset/code", async (req, res) => {
+    console.log("/password/reset/code route hit");
+    console.log("req.body", req.body);
+    //const q1 = db.getResetCode(req.body.email);
+    try {
+        const { rows } = await db.getResetCode(req.body.email);
+        console.log("code obtaineD from db");
+        console.log("rows", rows);
+        console.log("rows[0]", rows[0]);
+        console.log("rows[0].code", rows[0].code);
+        console.log("req.body.code", req.body.code);
+        if (rows[0].code == req.body.code) {
+            console.log("correct code entered!");
+            hash(req.body.newPass)
+                .then((hashedPw) => {
+                    db.updateUserPw(req.body.email, hashedPw)
+                        .then((result) => {
+                            console.log("pw updated", result.rows);
+                            if (result.rows.length > 0) {
+                                console.log("result.rows.length > 0");
+                                res.json({ display: 3 });
+                            } else {
+                                console.log("!result.rows.length > 0");
+                            }
+                        })
+                        .catch((err) => console.log(err));
+                })
+                .catch((err) => console.log(err));
+        } else {
+            console.log("else part");
+            res.json({ display: 2, error: "Incorect Code: Please try again!" });
+        }
+    } catch (e) {
+        console.log(e);
+        res.json({ success: false });
+    }
+});
+
 app.post("/login", (req, res) => {
+    console.log("login route hit!");
     console.log("req.body", req.body);
     console.log("checking condition");
     const { email, password } = req.body;
@@ -72,10 +139,13 @@ app.post("/login", (req, res) => {
                 console.log("result.rows[0]", result.rows[0]);
                 const { password: hashedPw, id } = result.rows[0];
                 console.log("hashedPw ", hashedPw);
-                compare
-                    .bind(password, hashedPw)
-                    .then((result) => {
-                        if (result) {
+                console.log(result.rows[0].id);
+                compare(password, hashedPw)
+                    .then((result2) => {
+                        console.log(result);
+                        if (result2) {
+                            console.log("login successful");
+                            req.session.userId = result.rows[0].id;
                             res.json({ success: true });
                         } else {
                             res.json({ success: false });
@@ -176,8 +246,8 @@ app.get("*", function (req, res) {
     if (!req.session.userId) {
         res.redirect("/welcome");
     } else {
-        res.redirect("/login");
-        //res.sendFile(__dirname + "/index.html");
+        //res.redirect("/login");
+        res.sendFile(__dirname + "/index.html");
     }
 });
 

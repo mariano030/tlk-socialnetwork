@@ -33,10 +33,6 @@ export default class Login extends React.Component {
             )
             .then(({ data }) => {
                 if (data.success) {
-                    console.log(
-                        "data.success: does this happen?",
-                        data.success
-                    );
                     location.replace("/");
                 } else {
                     this.setState({
@@ -72,7 +68,9 @@ export default class Login extends React.Component {
                 />
                 <button onClick={() => this.submit()}>Submit</button>
                 <div className="center">
-                    <Link to="/resetPassword">Forgot my password...</Link>
+                    <Link to="/password/reset/start">
+                        Forgot my password...
+                    </Link>
                     <Link to="/">Click here to register!</Link>
                 </div>
             </div>

@@ -3,6 +3,7 @@ import { HashRouter, Route } from "react-router-dom";
 
 import Logo from "./logo.js";
 
+import ResetPassword from "./reset.js";
 import Registration from "./registration.js";
 import Login from "./login.js";
 
@@ -19,6 +20,10 @@ export default class Welcome extends React.Component {
                     <div>
                         <Route exact path="/" component={Registration} />
                         <Route path="/login" component={Login} />
+                        <Route
+                            path="/resetPassword"
+                            component={ResetPassword}
+                        />
                     </div>
                 </HashRouter>
             </div>

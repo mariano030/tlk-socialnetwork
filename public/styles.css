@@ -13,7 +13,7 @@
 }
 
 .logo-big {
-    height: 500px;
+    height: 420px;
 }
 
 /* .logo-small {
@@ -48,4 +48,9 @@ button {
 
 img {
     max-height: 450px;
+}
+
+.link {
+    text-decoration: underline;
+    cursor: pointer;
 }
