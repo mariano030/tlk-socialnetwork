@@ -9,12 +9,39 @@ const csurf = require("csurf");
 const { send } = require("./ses");
 const bodyParser = require("body-parser");
 
-const cryptoRandomString = require("crypto-random-string");
-const { json } = require("express");
+const cryptoRandomString = require("crypto-random-string"); // for reset code
+//const { json } = require("express");
 const secretCode = cryptoRandomString({
     length: 2,
 });
 
+// for upload s3
+const multer = require("multer");
+const uidSafe = require("uid-safe"); // for random filename
+const path = require("path");
+
+const s3 = require("./s3");
+const config = require("./config");
+
+const diskStorage = multer.diskStorage({
+    destination: function (req, file, callback) {
+        callback(null, __dirname + "/uploads");
+    },
+    filename: function (req, file, callback) {
+        uidSafe(24).then(function (uid) {
+            callback(null, uid + path.extname(file.originalname));
+        });
+    },
+});
+
+const uploader = multer({
+    storage: diskStorage,
+    limits: {
+        fileSize: 2097152,
+    },
+});
+
+// body parser
 app.use(bodyParser.urlencoded({ extended: true })); // with extended:true you can hand over an object to the POST route (or any)!!!
 // the extended: true specifies that the req.body object will contain values of any type instead of just strings.
 
@@ -31,18 +58,24 @@ app.use(
 
 app.use(csurf());
 
-app.use(function (req, res, next) {
+app.use((req, res, next) => {
+    res.set("x-frame-options", "DENY");
     res.cookie("mytoken", req.csrfToken());
     next();
 });
 
-app.use((req, res, next) => {
-    res.set("x-frame-options", "DENY");
-    // res.locals.csrfToken = req.csrfToken();
+app.use(compression());
+// ### info / loggin middleware
+app.use(function (req, res, next) {
+    console.log("### method: ", req.method, "destination", req.url);
+    if (req.session) {
+        console.log("req.session.id", req.session.id);
+    }
+    if (req.body) {
+        console.log(req.body);
+    }
     next();
 });
-
-app.use(compression());
 
 if (process.env.NODE_ENV != "production") {
     app.use(
@@ -56,6 +89,12 @@ if (process.env.NODE_ENV != "production") {
 }
 
 app.use(express.static("public"));
+
+//// ### POST ++++ ROUTES
+app.post("/uploader", (req, res) => {
+    console.log();
+    res.sendStatus(200);
+});
 
 app.post("/password/reset/start", (req, res) => {
     console.log("reset route hit");
@@ -83,15 +122,26 @@ app.post("/password/reset/start", (req, res) => {
         .catch(console.log("could not add RestCode to db or snd mail"));
 });
 
+app.post("/profile", uploader.single("file"), s3.upload, async (req, res) => {
+    console.log("req.body", req.body);
+    const imageUrl = req.body.file;
+    try {
+        const imageRows = await db.updateUserImage(req.session.id, imageUrl);
+        res.json(imageRows[0]);
+    } catch (err) {
+        console.log(err);
+        res.json({ error: true });
+    }
+});
+
 app.post("/password/reset/code", async (req, res) => {
     console.log("/password/reset/code route hit");
     console.log("req.body", req.body);
     //const q1 = db.getResetCode(req.body.email);
     try {
         const { rows } = await db.getResetCode(req.body.email);
-        console.log("code obtaineD from db");
-        console.log("rows", rows);
-        console.log("rows[0]", rows[0]);
+        console.log("code obtaines from db");
+        console.log("rows[0].code", rows[0].code);
         console.log("rows[0].code", rows[0].code);
         console.log("req.body.code", req.body.code);
         if (rows[0].code == req.body.code) {
@@ -100,7 +150,7 @@ app.post("/password/reset/code", async (req, res) => {
                 .then((hashedPw) => {
                     db.updateUserPw(req.body.email, hashedPw)
                         .then((result) => {
-                            console.log("pw updated", result.rows);
+                            console.log("pw updated");
                             if (result.rows.length > 0) {
                                 console.log("result.rows.length > 0");
                                 res.json({ display: 3 });
@@ -123,7 +173,7 @@ app.post("/password/reset/code", async (req, res) => {
 
 app.post("/login", (req, res) => {
     console.log("login route hit!");
-    console.log("req.body", req.body);
+    console.log("req.body::", req.body);
     console.log("checking condition");
     const { email, password } = req.body;
     if (!email || !password) {
@@ -134,27 +184,33 @@ app.post("/login", (req, res) => {
             error: "please enter a vaild email and password data",
         });
     } else {
+        console.log("@what?");
         db.getUserPw(email)
             .then((result) => {
-                console.log("result.rows[0]", result.rows[0]);
-                const { password: hashedPw, id } = result.rows[0];
-                console.log("hashedPw ", hashedPw);
-                console.log(result.rows[0].id);
-                compare(password, hashedPw)
-                    .then((result2) => {
-                        console.log(result);
-                        if (result2) {
-                            console.log("login successful");
-                            req.session.userId = result.rows[0].id;
-                            res.json({ success: true });
-                        } else {
+                if (result.rows.length == 0) {
+                    console.log("no user found");
+                    res.json({ error: false });
+                } else {
+                    console.log("result.rows", result.rows);
+                    const { password: hashedPw } = result.rows[0];
+                    console.log("hashedPw ", hashedPw);
+                    console.log(result.rows[0].id);
+                    compare(password, hashedPw)
+                        .then((result2) => {
+                            console.log(result);
+                            if (result2) {
+                                console.log("login successful");
+                                req.session.userId = result.rows[0].id;
+                                res.json({ success: true });
+                            } else {
+                                res.json({ success: false });
+                            }
+                        })
+                        .catch((err) => {
+                            console.log("passwords did not match ", err);
                             res.json({ success: false });
-                        }
-                    })
-                    .catch((err) => {
-                        console.log("passwords did not match ", err);
-                        res.json({ success: false });
-                    });
+                        });
+                }
             })
             .catch((err) => {
                 console.log("error retriving user with email ", err);
@@ -224,6 +280,19 @@ app.post("/register", (req, res) => {
     }
 });
 
+//// ### GET ++++ ROUTES
+
+app.get("/user", async (req, res) => {
+    console.log(" loading user data ");
+    try {
+        const { data } = await db.getUserData(req.session.id);
+        res.json({ data });
+    } catch (e) {
+        console.log(e);
+        res.json({ error: true });
+    }
+});
+
 app.get("/welcome", function (req, res) {
     if (req.session.userId) {
         res.redirect("/login");
@@ -240,13 +309,12 @@ app.get("/welcome", function (req, res) {
 //     }
 // });
 
-// star route must be at the bottom!!
+// star route must be at the bottom not to overwrite the others (top route get's hit first)!!
 
 app.get("*", function (req, res) {
     if (!req.session.userId) {
         res.redirect("/welcome");
     } else {
-        //res.redirect("/login");
         res.sendFile(__dirname + "/index.html");
     }
 });

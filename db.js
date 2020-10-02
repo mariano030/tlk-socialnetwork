@@ -62,4 +62,15 @@ module.exports.addResetCode = (email, resetCode) => {
     return db.query(q, params);
 };
 
+module.exports.updateUserImage = (id, imageUrl) => {
+    const q = `
+    UPDATE users
+    SET image_url = $2
+    WHERE id = $1
+    RETURNING image_url
+    `;
+    const params = [id, imageUrl];
+    return db.query(q, params);
+};
+
 // e.target.files[0]

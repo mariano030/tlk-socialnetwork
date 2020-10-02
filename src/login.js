@@ -20,17 +20,10 @@ export default class Login extends React.Component {
         const { email, password } = this.state;
         console.log(email, password);
         axios
-            .post(
-                "/login",
-                {
-                    email,
-                    password,
-                },
-                {
-                    xsrfCookieName: "mytoken",
-                    xsrfHeaderName: "csrf-token", // the csurf middleware automatically checks this header for the token
-                }
-            )
+            .post("/login", {
+                email,
+                password,
+            })
             .then(({ data }) => {
                 if (data.success) {
                     console.log(

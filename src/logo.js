@@ -13,12 +13,7 @@ export default class Logo extends React.Component {
     render() {
         return (
             <div>
-                <img className="logo-big" src="logo.jpg" />
-                <div>
-                    <div className="center">
-                        <h3>JUST LIKE ALL THE OTHER SOCIAL MEDIA PLATFORMS</h3>
-                    </div>
-                </div>
+                <img className={this.props.cssStyle} src="logo.jpg" />
             </div>
         );
     }

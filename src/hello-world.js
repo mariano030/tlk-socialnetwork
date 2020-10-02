@@ -4,8 +4,6 @@ import Greetee from "./greetee.js";
 
 import Counter from "./counter.js";
 
-import Changer from "./changer.js";
-
 // component "HelloWorld"
 // 2 types of component - functional components & class components
 export default function HelloWorld() {

@@ -20,19 +20,12 @@ export default class Registration extends React.Component {
         const { first, last, email, password } = this.state;
         console.log(first, last, email, password);
         axios
-            .post(
-                "/register",
-                {
-                    first,
-                    last,
-                    email,
-                    password,
-                },
-                {
-                    xsrfCookieName: "mytoken",
-                    xsrfHeaderName: "csrf-token", // the csurf middleware automatically checks this header for the token
-                }
-            )
+            .post("/register", {
+                first,
+                last,
+                email,
+                password,
+            })
             .then(({ data }) => {
                 if (data.success) {
                     location.replace("/");
@@ -46,7 +39,7 @@ export default class Registration extends React.Component {
     render() {
         return (
             <div className="center">
-                <div className="text">Register now!</div>
+                <div className="text">Welcome!</div>
                 {this.state.error && (
                     <div className="message-error">
                         Oops! Soemthing went wrong. Totally your fault.

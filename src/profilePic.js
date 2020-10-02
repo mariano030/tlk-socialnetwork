@@ -1,16 +1,19 @@
 import React from "react";
 
-export default function Example({ first, last, imageUrl }) {
-    //console.log("prop", props);
+export default function ProfilePic({
+    toggleUploader,
+    first,
+    last,
+    imageUrl,
+    myClassName,
+}) {
     return (
         <>
-            <h2>
-                {" "}
-                Hey I am the example, welcome {first} {last}
-            </h2>
             <img
-                src={imageUrl || "./img/user_avatar_default"}
+                src={imageUrl || "./img/default_avatar.jpg"}
                 alt={first + " " + last}
+                className={myClassName}
+                onClick={toggleUploader}
             />
         </>
     );
