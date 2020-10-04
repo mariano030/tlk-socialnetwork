@@ -4,6 +4,7 @@ import Uploader from "./uploader.js";
 import Logo from "./logo.js";
 import ProfilePic from "./profilePic.js";
 import Profile from "./profile.js";
+import Axios from "axios";
 
 export default class App extends React.Component {
     constructor(props) {
@@ -13,14 +14,16 @@ export default class App extends React.Component {
             last: "buttersworth",
 
             imageUrl: null,
-            uploaderIsVisible: true,
+            uploaderIsVisible: false,
             cssStyle: null,
         };
         this.toggleUploader = this.toggleUploader.bind(this);
+        this.updateState = this.updateState.bind(this);
     }
     async componentDidMount() {
         console.log("App just mounted");
         try {
+            //const user = await Axios.get("/user");
         } catch (e) {
             console.log("error loading user data");
         }
@@ -34,14 +37,12 @@ export default class App extends React.Component {
         this.setState({
             uploaderIsVisible: !this.state.uploaderIsVisible,
         });
-        //     this.setState((uploaderIsVisible = false));
-        // } else {
-        //     this.setState({ uploaderIsVisible: true });
-        // }
         console.log("uploaderIsVisible", this.state.uploaderIsVisible);
     }
     updateState(obj) {
         this.setState(obj);
+        console.log("state updated", obj);
+        console.log(this.state);
     }
     methodInApp(arg) {
         console.log("blabla ich bin method in app");
@@ -60,30 +61,59 @@ export default class App extends React.Component {
 
         return (
             <>
-                <Logo cssStyle={"logo-small"} />
                 <header>
-                    <div> I am App.</div>
+                    <div className="header-bg">
+                        <Logo cssStyle={"logo-small"} />
+                    </div>
+                    <div className="row">
+                        <h2>tlk.</h2>
+                    </div>
+                    <div className="colomn">
+                        <ProfilePic
+                            toggleUploader={this.toggleUploader}
+                            first={this.state.first}
+                            last={this.state.last}
+                            imgUrl={this.state.url || "/img/default_avatar.jpg"}
+                            myClassName="profile-picture"
+                        />
+                        <div className="align-right">
+                            {this.state.first} {this.state.last}
+                        </div>
+                    </div>
                 </header>
                 <div className="main-container">
-                    <ProfilePic
+                    <Profile
                         toggleUploader={this.toggleUploader}
                         first={this.state.first}
                         last={this.state.last}
-                        imgUrl={this.state.url || "./img/default_avatar.jpg"}
+                        imageUrl={this.state.imageUrl}
                     />
-                    <Profile
+                    {/* <Example
                         first={this.state.first}
                         last={this.state.last}
                         imageUrl={this.state.imageUrl}
-                    />
-                    <Example
-                        first={this.state.first}
-                        last={this.state.last}
-                        imageUrl={this.state.imageUrl}
-                    />
+                    /> */}
                     {this.state.uploaderIsVisible && (
-                        <Uploader updateState={this.updateState} />
+                        <Uploader
+                            updateState={this.updateState}
+                            toggleUploader={this.toggleUploader}
+                        />
                     )}
+                    {/* <div className="tiny">
+                        Icons made by{" "}
+                        <a
+                            href="https://www.flaticon.com/authors/freepik"
+                            title="Freepik"
+                        >
+                            Freepik
+                        </a>{" "}
+                        from{" "}
+                        <a href="https://www.flaticon.com/" title="Flaticon">
+                            {" "}
+                            www.flaticon.com
+                        </a>
+                        Header illustration by Pete Ryan
+                    </div> */}
                 </div>
             </>
         );

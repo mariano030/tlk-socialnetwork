@@ -67,9 +67,18 @@ module.exports.updateUserImage = (id, imageUrl) => {
     UPDATE users
     SET image_url = $2
     WHERE id = $1
-    RETURNING image_url
+    RETURNING *
     `;
     const params = [id, imageUrl];
+    return db.query(q, params);
+};
+
+module.exports.getUserById = (id) => {
+    const q = `
+    SELECT * 
+    FROM users
+    WHERE id = $1`;
+    const params = [id];
     return db.query(q, params);
 };
 

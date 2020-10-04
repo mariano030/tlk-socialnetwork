@@ -6,6 +6,7 @@ export default class Uploader extends React.Component {
         super(props);
         this.state = {
             file: null,
+            cssStyle: "blue",
         };
     }
     componentDidMount() {
@@ -24,11 +25,13 @@ export default class Uploader extends React.Component {
             console.log("file selected");
             console.log("axios starten");
             const formData = new FormData();
-            formData.append("/profile", this.state.file);
+            formData.append("file", this.state.file);
             const { data } = await axios.post("/profile", formData);
             console.log(data);
-            updateState({ imageUrl: data.url }); // data...
+            this.props.updateState({ imageUrl: data.image_url }); // data...
+            setTimeout(500, this.props.toggleUploader());
         } else {
+            this.setState({ cssStyle: "highlight" });
         }
     }
     render() {
@@ -37,6 +40,7 @@ export default class Uploader extends React.Component {
                 <div className="modal column">
                     <div> Upload new profile picture</div>
                     <input
+                        className={this.state.cssStyle}
                         onChange={(e) => this.handleChange(e)}
                         name="file"
                         type="file"

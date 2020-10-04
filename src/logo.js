@@ -13,7 +13,10 @@ export default class Logo extends React.Component {
     render() {
         return (
             <div>
-                <img className={this.props.cssStyle} src="logo.jpg" />
+                <img
+                    className={("logo", this.props.cssStyle)}
+                    src="/img/logo_512.png"
+                />
             </div>
         );
     }

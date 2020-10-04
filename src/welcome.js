@@ -14,18 +14,25 @@ export default class Welcome extends React.Component {
     }
     render() {
         return (
-            <div className="center">
-                <Logo />
-                <HashRouter>
-                    <div>
-                        <Route exact path="/" component={Registration} />
-                        <Route path="/login" component={Login} />
-                        <Route
-                            path="/resetPassword"
-                            component={ResetPassword}
-                        />
+            <div className="row">
+                <div className="header-bg">
+                    <div className="column">
+                        <Logo cssStyle={"logo-big"} />
+                        <h1>tlk.</h1>
                     </div>
-                </HashRouter>
+                </div>
+                <div className="welcome-tools">
+                    <HashRouter>
+                        <div>
+                            <Route exact path="/" component={Registration} />
+                            <Route path="/login" component={Login} />
+                            <Route
+                                path="/resetPassword"
+                                component={ResetPassword}
+                            />
+                        </div>
+                    </HashRouter>
+                </div>
             </div>
         );
     }

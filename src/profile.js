@@ -1,17 +1,24 @@
 import React from "react";
-import ProfilePic from "./profile.js";
+import ProfilePic from "./profilePic.js";
 import BioEditor from "./bioEditor.js";
 
 export default function Profile(props) {
-    const { first, last, imageUrl } = props; // in class elements we need to say this.props
+    const { toggleUploader, first, last, imageUrl } = props; // in class elements we need to say this.props
     return (
         <>
-            <div>I am the Profile Component</div>
-            <ProfilePic
-                imageUrl={imageUrl}
-                myClassName="profile-picture-large"
-            />
-            <BioEditor />
+            <div className="row">
+                <div className="column-left">
+                    <ProfilePic
+                        toggleUploader={toggleUploader}
+                        imageUrl={imageUrl}
+                        myClassName="profile-picture-large"
+                    />
+                </div>
+                <div className="column-left">
+                    <h2>{first + " " + last}</h2>
+                    <BioEditor />
+                </div>
+            </div>
         </>
     );
 }

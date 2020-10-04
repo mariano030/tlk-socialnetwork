@@ -23,20 +23,20 @@ export default class BioEditor extends React.Component {
         if (this.state.editingMode) {
             return (
                 <>
-                    <h1>I am the Bio Editor in EDIT MODE</h1>;
+                    <h3>Please add a short description of yourself ...</h3>
                     <textarea defaultValue="Something..."></textarea>
                     <button>SAVE</button>
                 </>
             );
         } else {
-            return;
-            <>
-                <h1>I am the Bio Editor, kicking back.</h1>;
-                <button onClick={() => this.putInEditMode()}>
-                    {this.props.bio ? "Edit Bio" : "Add Bio"}
-                    ADD OR EDIT
-                </button>
-            </>;
+            return (
+                <>
+                    <h4>A short description of yourself ...</h4>
+                    <button onClick={() => this.putInEditMode()}>
+                        {this.props.bio ? "Edit Bio" : "Add Bio"}
+                    </button>
+                </>
+            );
         }
     }
 }

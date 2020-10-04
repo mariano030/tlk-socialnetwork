@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 const compression = require("compression");
+
 const db = require("./db.js");
 const { compare, hash } = require("./bc"); //
 const cookieSession = require("cookie-session");
@@ -9,9 +10,9 @@ const { send } = require("./ses");
 const bodyParser = require("body-parser");
 
 const cryptoRandomString = require("crypto-random-string"); // for reset code
-const { json } = require("express");
+//const { json } = require("express");
 const secretCode = cryptoRandomString({
-    length: 6,
+    length: 2,
 });
 
 // for upload s3
@@ -64,7 +65,7 @@ app.use((req, res, next) => {
 });
 
 app.use(compression());
-//### info / loggin middleware
+// ### info / loggin middleware
 app.use(function (req, res, next) {
     console.log("### method: ", req.method, "destination", req.url);
     if (req.session) {
@@ -122,18 +123,11 @@ app.post("/password/reset/start", (req, res) => {
 });
 
 app.post("/profile", uploader.single("file"), s3.upload, async (req, res) => {
-    console.log("/profile hit with      POST");
     console.log("req.body", req.body);
-    console.log("req.file", req.file.filename);
-    console.log(req.session.userId);
-    //image_url;
-    //console.log("path to file?? ", config.s3Url + req.file.filename);
-    const imageUrl = config.s3Url + req.file.filename;
-    console.log("imageUrl", imageUrl);
+    const imageUrl = req.body.file;
     try {
-        const { rows } = await db.updateUserImage(req.session.userId, imageUrl);
-        //console.log("IMGAE ROWWWS", imageRows.rows[0].image_url);
-        res.json({ imageUrl: imageUrl });
+        const imageRows = await db.updateUserImage(req.session.id, imageUrl);
+        res.json(imageRows[0]);
     } catch (err) {
         console.log(err);
         res.json({ error: true });
@@ -291,7 +285,7 @@ app.post("/register", (req, res) => {
 app.get("/user", async (req, res) => {
     console.log(" loading user data ");
     try {
-        const { data } = await db.getUserById(req.session.id);
+        const { data } = await db.getUserData(req.session.id);
         res.json({ data });
     } catch (e) {
         console.log(e);
@@ -325,6 +319,13 @@ app.get("*", function (req, res) {
     }
 });
 
-app.listen(8080, function () {
-    console.log("I'm listening.");
+//const port = 8080;
+
+// var result = app.listen(8080, function () {
+//     console.log("I'm listening on ");
+//     console.log(result.address());
+// });
+
+result = app.listen(8080, function () {
+    console.log("I'm listening on ");
 });
