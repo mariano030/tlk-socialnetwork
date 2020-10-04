@@ -2,14 +2,15 @@ import React from "react";
 import Axios from "./axios";
 
 export default class BioEditor extends React.Component {
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.state = {
             editingMode: false,
+            bio: this.props.bio,
         };
     }
     //not needed atm
-    toggleEdit() {
+    toggleEditMode() {
         this.setState({ editingMode: !this.state.editingMode });
     }
     putInEditMode() {
@@ -19,22 +20,59 @@ export default class BioEditor extends React.Component {
             console.log("the new state: ", this.state)
         );
     }
+    handleChange({ target }) {
+        this.setState({ [target.name]: target.value });
+        console.log(target.defaultValue);
+        console.log("this.state.bio", this.state.bio);
+    }
+    async updateBio() {
+        console.log(this.bio);
+        const response = await Axios.post("/updatebio", {
+            bio: this.state.bio,
+        });
+        if (response) {
+            this.props.updateState({ bio: this.state.bio });
+        }
+        console.log("response from index", response);
+        this.setState({ editingMode: false });
+    }
     render() {
         if (this.state.editingMode) {
             return (
                 <>
-                    <h3>Please add a short description of yourself ...</h3>
-                    <textarea defaultValue="Something..."></textarea>
-                    <button>SAVE</button>
+                    <h4>Please add a short description of yourself ...</h4>
+                    <textarea
+                        name="bio"
+                        defaultValue={this.props.bio || ""}
+                        onChange={(e) => this.handleChange(e)}
+                    ></textarea>
+                    <div className="button" onClick={() => this.updateBio()}>
+                        Save
+                    </div>
+                    <div
+                        className="button"
+                        onClick={() => this.toggleEditMode()}
+                    >
+                        Cancel
+                    </div>
                 </>
             );
         } else {
             return (
                 <>
-                    <h4>A short description of yourself ...</h4>
-                    <button onClick={() => this.putInEditMode()}>
+                    <h4>Bio:</h4>
+                    <div className="text">
+                        {this.props.bio || "No bio yet ..."}
+                    </div>
+                    {/* <button onClick={() => this.putInEditMode()}>
                         {this.props.bio ? "Edit Bio" : "Add Bio"}
-                    </button>
+                    </button> */}
+                    <div
+                        onClick={() => this.putInEditMode()}
+                        className="button"
+                    >
+                        {this.props.bio ? "Edit Bio" : "Add Bio"}
+                    </div>
                 </>
             );
         }

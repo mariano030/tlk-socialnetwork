@@ -69,6 +69,7 @@ app.use(function (req, res, next) {
     console.log("### method: ", req.method, "destination", req.url);
     if (req.session) {
         console.log("req.session.id", req.session.id);
+        console.log("req.session.userId", req.session.userId);
     }
     if (req.body) {
         console.log(req.body);
@@ -88,13 +89,46 @@ if (process.env.NODE_ENV != "production") {
 }
 
 app.use(express.static("public"));
-
+///////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////// ROUTES ///////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
 //// ### POST ++++ ROUTES
-app.post("/uploader", (req, res) => {
-    console.log();
-    res.sendStatus(200);
+
+app.post("/updatebio", async (req, res) => {
+    console.log(req.body);
+    console.log("updatebio route hit");
+    console.log(" req.body.bio: ", req.body.bio);
+    try {
+        const result = await db.updateUserBio(req.session.userId, req.body.bio);
+        res.json(result);
+    } catch (err) {
+        console.log(err);
+    }
 });
 
+app.post("/profile", uploader.single("file"), s3.upload, async (req, res) => {
+    console.log("/profile hit with      POST");
+    console.log("req.body", req.body);
+    console.log("req.file", req.file.filename);
+    console.log(req.session.userId);
+    //image_url;
+    //console.log("path to file?? ", config.s3Url + req.file.filename);
+    const newImageUrl = config.s3Url + req.file.filename;
+    console.log("newImageUrl", newImageUrl);
+    try {
+        const { rows } = await db.updateUserImage(
+            req.session.userId,
+            newImageUrl
+        );
+        res.json({ imageUrl: newImageUrl });
+        //console.log("IMGAE ROWWWS", imageRows.rows[0].image_url);
+    } catch (err) {
+        console.log(err);
+        res.json({ error: true });
+    }
+});
+
+///// REGISTER // LOGIN // PW RESET //////////
 app.post("/password/reset/start", (req, res) => {
     console.log("reset route hit");
     console.log("req.body", req.body);
@@ -119,25 +153,6 @@ app.post("/password/reset/start", (req, res) => {
             );
         })
         .catch(console.log("could not add RestCode to db or snd mail"));
-});
-
-app.post("/profile", uploader.single("file"), s3.upload, async (req, res) => {
-    console.log("/profile hit with      POST");
-    console.log("req.body", req.body);
-    console.log("req.file", req.file.filename);
-    console.log(req.session.userId);
-    //image_url;
-    //console.log("path to file?? ", config.s3Url + req.file.filename);
-    const imageUrl = config.s3Url + req.file.filename;
-    console.log("imageUrl", imageUrl);
-    try {
-        const { rows } = await db.updateUserImage(req.session.userId, imageUrl);
-        //console.log("IMGAE ROWWWS", imageRows.rows[0].image_url);
-        res.json({ imageUrl: imageUrl });
-    } catch (err) {
-        console.log(err);
-        res.json({ error: true });
-    }
 });
 
 app.post("/password/reset/code", async (req, res) => {
@@ -288,11 +303,34 @@ app.post("/register", (req, res) => {
 
 //// ### GET ++++ ROUTES
 
+app.get("/logout", (req, res) => {
+    res.clearCookie("mytoken", { path: "/login" });
+});
+
 app.get("/user", async (req, res) => {
     console.log(" loading user data ");
     try {
-        const { data } = await db.getUserById(req.session.id);
-        res.json({ data });
+        console.log("db querry for userId", req.session.userId);
+        const result = await db.getUserById(req.session.userId);
+        console.log(result);
+        const {
+            id: userId,
+            first,
+            last,
+            image_url: imageUrl,
+            bio,
+            email,
+        } = result.rows[0];
+        console.log("userId: ", userId, first, last, imageUrl, email, bio);
+        console.log("i got the bio, no worries", bio);
+        res.json({
+            first: first,
+            last: last,
+            imageUrl: imageUrl,
+            email: email,
+            userId: userId,
+            bio: bio,
+        });
     } catch (e) {
         console.log(e);
         res.json({ error: true });

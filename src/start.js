@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
-import Welcome from "./welcome.js";
+import Welcome from "./logged_out/welcome.js";
 import App from "./app.js";
 
 let elem = <App />;

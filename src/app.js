@@ -10,10 +10,10 @@ export default class App extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            first: "marcel",
-            last: "buttersworth",
+            first: "First",
+            last: "Lastname",
+            // userId: null,
 
-            imageUrl: null,
             uploaderIsVisible: false,
             cssStyle: null,
         };
@@ -23,7 +23,9 @@ export default class App extends React.Component {
     async componentDidMount() {
         console.log("App just mounted");
         try {
-            //const user = await Axios.get("/user");
+            const user = await Axios.get("/user");
+            this.updateState(user.data);
+            console.log("state updated with", user.data);
         } catch (e) {
             console.log("error loading user data");
         }
@@ -65,28 +67,38 @@ export default class App extends React.Component {
                     <div className="header-bg">
                         <Logo cssStyle={"logo-small"} />
                     </div>
-                    <div className="row">
+                    <div className="row-left">
                         <h2>tlk.</h2>
                     </div>
-                    <div className="colomn">
+                    <div className="column">
                         <ProfilePic
                             toggleUploader={this.toggleUploader}
                             first={this.state.first}
                             last={this.state.last}
-                            imgUrl={this.state.url || "/img/default_avatar.jpg"}
+                            imageUrl={
+                                this.state.imageUrl ||
+                                "./img/default_avatar.png"
+                            }
                             myClassName="profile-picture"
                         />
-                        <div className="align-right">
-                            {this.state.first} {this.state.last}
+                        <div className="loggedin-user">
+                            Hi, {this.state.first} {this.state.last}.
+                            {/* <img
+                                src="./img/door.png"
+                                className="icon"
+                                alt="logout"
+                            ></img> */}
                         </div>
                     </div>
                 </header>
                 <div className="main-container">
                     <Profile
                         toggleUploader={this.toggleUploader}
+                        updateState={this.updateState}
                         first={this.state.first}
                         last={this.state.last}
                         imageUrl={this.state.imageUrl}
+                        bio={this.state.bio}
                     />
                     {/* <Example
                         first={this.state.first}

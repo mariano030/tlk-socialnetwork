@@ -9,12 +9,14 @@ export default function ProfilePic({
 }) {
     return (
         <>
-            <img
-                src={imageUrl || "./img/default_avatar.jpg"}
-                alt={first + " " + last}
-                className={myClassName}
-                onClick={toggleUploader}
-            />
+            <div className="profile-border">
+                <img
+                    src={imageUrl || "./img/default_avatar.png"}
+                    alt={"Profile picture" + first + " " + last}
+                    className={myClassName}
+                    onClick={toggleUploader}
+                />
+            </div>
         </>
     );
 }
