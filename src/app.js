@@ -1,10 +1,14 @@
 import React from "react";
-import Example from "./example.js";
-import Uploader from "./uploader.js";
-import Logo from "./logo.js";
-import ProfilePic from "./profilePic.js";
-import Profile from "./profile.js";
 import Axios from "axios";
+import { BrowserRouter, Route, Link } from "react-router-dom";
+import { unmountComponentAtNode, render } from "react-dom";
+import Logo from "./logo.js";
+import Profile from "./profile.js";
+import ProfilePic from "./profilePic.js";
+import Uploader from "./uploader.js";
+import OtherProfile from "./otherProfile.js";
+import ModalMessage from "./modalMessage";
+//import Example from "./example.js";
 
 export default class App extends React.Component {
     constructor(props) {
@@ -23,11 +27,12 @@ export default class App extends React.Component {
     async componentDidMount() {
         console.log("App just mounted");
         try {
-            const user = await Axios.get("/user");
+            const user = await Axios.get("/api/user");
             this.updateState(user.data);
-            console.log("state updated with", user.data);
+            unmountComponentAtNode(document.getElementById("preload"));
+            //console.log("state updated with", user.data);
         } catch (e) {
-            console.log("error loading user data");
+            console.log("error loading user data", e);
         }
         // a good place to make an axios request to our server
         // to get users information and put it in state
@@ -43,8 +48,8 @@ export default class App extends React.Component {
     }
     updateState(obj) {
         this.setState(obj);
-        console.log("state updated", obj);
-        console.log(this.state);
+        console.log("updateState APP : state updated", obj);
+        console.log("state after update", this.state);
     }
     methodInApp(arg) {
         console.log("blabla ich bin method in app");
@@ -63,55 +68,97 @@ export default class App extends React.Component {
 
         return (
             <>
-                <header>
-                    <div className="header-bg">
-                        <Logo cssStyle={"logo-small"} />
-                    </div>
-                    <div className="row-left">
-                        <h2>tlk.</h2>
-                    </div>
-                    <div className="column">
-                        <ProfilePic
-                            toggleUploader={this.toggleUploader}
-                            first={this.state.first}
-                            last={this.state.last}
-                            imageUrl={
-                                this.state.imageUrl ||
-                                "./img/default_avatar.png"
-                            }
-                            myClassName="profile-picture"
-                        />
-                        <div className="loggedin-user">
-                            Hi, {this.state.first} {this.state.last}.
-                            {/* <img
+                <BrowserRouter>
+                    <header>
+                        <div className="header-bg">
+                            <Link to="/" className="link">
+                                <Logo cssStyle={"logo-small"} />
+                            </Link>
+                        </div>
+                        <div className="row-left">
+                            <Link
+                                to="/"
+                                className="link"
+                                style={{ textDecoration: "none" }}
+                            >
+                                <h2>tlk.</h2>
+                            </Link>
+                        </div>
+                        <div className="column">
+                            <ProfilePic
+                                toggleUploader={this.toggleUploader}
+                                first={this.state.first}
+                                last={this.state.last}
+                                imageUrl={
+                                    this.state.imageUrl ||
+                                    "/img/default_avatar.png"
+                                }
+                                myClassName="profile-picture"
+                            />
+                            <div className="loggedin-user">
+                                <Link
+                                    to="/"
+                                    className="link"
+                                    style={{ textDecoration: "none" }}
+                                >
+                                    Hi, {this.state.first}.
+                                </Link>
+                                {/* <img
                                 src="./img/door.png"
                                 className="icon"
                                 alt="logout"
                             ></img> */}
+                            </div>
                         </div>
-                    </div>
-                </header>
-                <div className="main-container">
-                    <Profile
-                        toggleUploader={this.toggleUploader}
-                        updateState={this.updateState}
-                        first={this.state.first}
-                        last={this.state.last}
-                        imageUrl={this.state.imageUrl}
-                        bio={this.state.bio}
-                    />
-                    {/* <Example
+                    </header>
+                    <div className="main-container">
+                        <Route
+                            exact
+                            path="/"
+                            render={() => (
+                                <Profile
+                                    toggleUploader={this.toggleUploader}
+                                    updateState={this.updateState}
+                                    first={this.state.first}
+                                    last={this.state.last}
+                                    imageUrl={this.state.imageUrl}
+                                    bio={this.state.bio}
+                                />
+                            )}
+                        />
+                        <Route
+                            path="/users/:id"
+                            render={(props) => (
+                                <OtherProfile
+                                    key={props.url}
+                                    match={props.match}
+                                    history={props.history}
+                                    updateState={this.updateState}
+                                />
+                            )}
+                        />
+
+                        {/* <Route path="/users:id" componnent={OtherProfile} /> */}
+                        {/* <Example
                         first={this.state.first}
                         last={this.state.last}
                         imageUrl={this.state.imageUrl}
                     /> */}
-                    {this.state.uploaderIsVisible && (
-                        <Uploader
-                            updateState={this.updateState}
-                            toggleUploader={this.toggleUploader}
-                        />
-                    )}
-                    {/* <div className="tiny">
+                        {this.state.uploaderIsVisible && (
+                            <Uploader
+                                updateState={this.updateState}
+                                toggleUploader={this.toggleUploader}
+                            />
+                        )}
+                        {this.state.modalOpen && (
+                            <ModalMessage
+                                toggleUploader={this.toggleUploader}
+                                message={this.state.message}
+                                destination={this.state.destination}
+                                button={this.state.button}
+                            />
+                        )}
+                        {/* <div className="tiny">
                         Icons made by{" "}
                         <a
                             href="https://www.flaticon.com/authors/freepik"
@@ -126,8 +173,36 @@ export default class App extends React.Component {
                         </a>
                         Header illustration by Pete Ryan
                     </div> */}
-                </div>
+                    </div>
+                </BrowserRouter>
             </>
         );
     }
 }
+
+// browser router:
+// we cannot user browser route component = syntax if we want to pass props
+// we can link to other components wihtout handing over props
+
+// render updates the props and the link:component version is a bit
+// slower as it creates a new instance of the component
+
+// using the render function and a function with the component as the arg for render
+// use exact path ESPECIALLY with "/" to liberate all sub paths...
+
+// inside render: interpreted as one line - no return needed with ( )...
+{
+    /* <Route exact path="/" render={()=> (                    <Profile
+                        toggleUploader={this.toggleUploader}
+                        updateState={this.updateState}
+                        first={this.state.first}
+                        last={this.state.last}
+                        imageUrl={this.state.imageUrl}
+                        bio={this.state.bio}
+                    />)} */
+}
+
+// update routes: "/api/user"
+
+// routes:
+// api/user - loading user data

@@ -11,7 +11,7 @@ export default function ProfilePic({
         <>
             <div className="profile-border">
                 <img
-                    src={imageUrl || "./img/default_avatar.png"}
+                    src={imageUrl || "/img/default_avatar.png"}
                     alt={"Profile picture" + first + " " + last}
                     className={myClassName}
                     onClick={toggleUploader}

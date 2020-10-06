@@ -307,7 +307,44 @@ app.get("/logout", (req, res) => {
     res.clearCookie("mytoken", { path: "/login" });
 });
 
-app.get("/user", async (req, res) => {
+app.get("/api/other-user/:userId", async (req, res) => {
+    console.log(" loading OTHER user data for ", req.body.params);
+    if (req.params.userId == req.session.userId) {
+        console.log(
+            "this freak is trying to have an outer body experience! it this users profile!"
+        );
+        res.json({ same: true });
+    } else {
+        try {
+            console.log("db querry for userId", req.params.userId);
+            const result = await db.getUserById(req.params.userId);
+            console.log("other user result ", result);
+            const {
+                id: userId,
+                first,
+                last,
+                image_url: imageUrl,
+                bio,
+                email,
+            } = result.rows[0];
+            console.log("userId: ", userId, first, last, imageUrl, email, bio);
+            console.log("i got the bio, no worries", bio);
+            res.json({
+                first: first,
+                last: last,
+                imageUrl: imageUrl,
+                email: email,
+                userId: userId,
+                bio: bio,
+            });
+        } catch (e) {
+            console.log(e);
+            res.json({ error: true });
+        }
+    }
+});
+
+app.get("/api/user", async (req, res) => {
     console.log(" loading user data ");
     try {
         console.log("db querry for userId", req.session.userId);

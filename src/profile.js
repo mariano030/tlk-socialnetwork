@@ -7,7 +7,7 @@ export default function Profile(props) {
     return (
         <>
             <div className="row">
-                <div className="column-left">
+                <div className="column-left-40">
                     <ProfilePic
                         toggleUploader={toggleUploader}
                         updateState={updateState}
@@ -17,7 +17,11 @@ export default function Profile(props) {
                 </div>
                 <div className="column-left-top">
                     <h3>{first + " " + last}</h3>
-                    <BioEditor bio={bio} updateState={updateState} />
+                    <BioEditor
+                        bio={bio}
+                        updateState={updateState}
+                        canEdit={true}
+                    />
                 </div>
             </div>
         </>

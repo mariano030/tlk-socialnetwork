@@ -17,3 +17,6 @@ ReactDOM.render(elem, document.querySelector("main"));
 // redirect logged out users to /welcome
 
 // welcome does not need to be class, classy approach is to use a functional component
+
+// if you change the filename of the first element (start.js) you will have
+// to change it in WEBPACK
