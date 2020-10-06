@@ -301,10 +301,35 @@ app.post("/register", (req, res) => {
     }
 });
 
+app.post("/api/find-users/:searchedName", async (req, res) => {
+    console.log("/api/find-users/:searchTerm hit");
+    console.log("req.params", req.params.searchedName);
+    console.log("userInput: ", req.params.userInput);
+
+    try {
+        const results = await db.findUsersByIncrement(req.params.searchedName);
+        console.log(results.rows);
+        res.json(results.rows);
+    } catch (err) {
+        console.log("error finding usersByIncrement", err);
+    }
+});
 //// ### GET ++++ ROUTES
 
 app.get("/logout", (req, res) => {
     res.clearCookie("mytoken", { path: "/login" });
+});
+
+app.get("/api/recent-users/", async (req, res) => {
+    console.log("getting recent users...");
+    try {
+        const result = await db.findMostRecentUsers();
+        console.log(result.rows);
+        res.json(result.rows);
+        console.log("results have been sent");
+    } catch (err) {
+        console.log("error getting recent users ", err);
+    }
 });
 
 app.get("/api/other-user/:userId", async (req, res) => {

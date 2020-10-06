@@ -13,7 +13,7 @@ export default function ProfilePic({
                 <img
                     src={imageUrl || "/img/default_avatar.png"}
                     alt={"Profile picture" + first + " " + last}
-                    className={myClassName}
+                    className={myClassName || "profile-picture"}
                     onClick={toggleUploader}
                 />
             </div>

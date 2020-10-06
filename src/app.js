@@ -2,11 +2,13 @@ import React from "react";
 import Axios from "axios";
 import { BrowserRouter, Route, Link } from "react-router-dom";
 import { unmountComponentAtNode, render } from "react-dom";
+
 import Logo from "./logo.js";
 import Profile from "./profile.js";
 import ProfilePic from "./profilePic.js";
 import Uploader from "./uploader.js";
 import OtherProfile from "./otherProfile.js";
+import FindPeople from "./findPeople.js";
 import ModalMessage from "./modalMessage";
 //import Example from "./example.js";
 
@@ -71,7 +73,7 @@ export default class App extends React.Component {
                 <BrowserRouter>
                     <header>
                         <div className="header-bg">
-                            <Link to="/" className="link">
+                            <Link to="/members/" className="link">
                                 <Logo cssStyle={"logo-small"} />
                             </Link>
                         </div>
@@ -136,6 +138,11 @@ export default class App extends React.Component {
                                     updateState={this.updateState}
                                 />
                             )}
+                        />
+
+                        <Route
+                            path="/members/"
+                            render={(props) => <FindPeople />}
                         />
 
                         {/* <Route path="/users:id" componnent={OtherProfile} /> */}
