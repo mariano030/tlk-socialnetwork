@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 
 import Axios from "./axios";
 import ProfilePic from "./profilePic";
+import FriendButton from "./hooks/friendButton";
 
 export default function FindPeople() {
     const [userInput, setUserInput] = useState("");

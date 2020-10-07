@@ -31,7 +31,7 @@ export default class App extends React.Component {
         try {
             const user = await Axios.get("/api/user");
             this.updateState(user.data);
-            unmountComponentAtNode(document.getElementById("preload"));
+            //unmountComponentAtNode(document.getElementById("preload"));
             //console.log("state updated with", user.data);
         } catch (e) {
             console.log("error loading user data", e);
@@ -64,10 +64,11 @@ export default class App extends React.Component {
         //         src="/img/skeleton-not-dead.gif"
         //         alt="still loading or loading unsuccessful"
         //     ></img>
-        // );
+        //     );
         // maybe show a spinner?
         // maybe a skeleton element?
 
+        // } else {}
         return (
             <>
                 <BrowserRouter>

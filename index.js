@@ -314,10 +314,124 @@ app.post("/api/find-users/:searchedName", async (req, res) => {
         console.log("error finding usersByIncrement", err);
     }
 });
+
+app.post("/api/update-friendship/", async (req, res) => {
+    console.log("UPDATE FFFFRIENDSHIP");
+    console.log(req.body);
+    const val = req.body.params.otherId;
+    console.log("val", val);
+    try {
+        const { rows } = await db.findFriendshipStatus(
+            req.session.userId,
+            req.body.params.otherId
+        );
+        console.log("rows", rows);
+        //console.log("result", result);
+        if (rows.length <= 0) {
+            // noch nix mit realation - wird ein request!
+            console.log("no relation yet");
+            try {
+                console.log("updating db newFriendshipRequest");
+                console.log(req.session.userId, req.body.params.otherId);
+                const { rows } = await db.sendFriendshipRequest(
+                    req.session.userId,
+                    req.body.params.otherId
+                );
+                console.log(rows);
+                res.json({ buttonText: "Cancel Friend Request" });
+            } catch (err) {
+                console.log(err);
+            }
+        } else {
+            console.log("relation found");
+            console.log(rows);
+            if (rows.accepted == true) {
+                // they are friends and should no longer be such
+                // unfriend DELTE
+                console.log("unfriend about to happen");
+                try {
+                    db.removeFriendship(
+                        req.session.id,
+                        req.body.params.otherId
+                    );
+                    res.json({ buttonText: "Send Friend Request" });
+                } catch (err) {
+                    console.log("error removing fship", err);
+                }
+            } else {
+                // a request is pending
+                if (rows.recipient_id == req.session.userId) {
+                    // accept UPDATE friend request == accept true
+                    try {
+                        db.acceptFriendship(
+                            req.session.id,
+                            req.body.params.otherId
+                        );
+
+                        res.json({ buttonText: "Unfriend" });
+                    } catch (err) {
+                        console.log("error accepting fship", err);
+                    }
+                } else {
+                    console.log("pending request - about to be deleted");
+                    try {
+                        db.removeFriendship(
+                            req.session.id,
+                            req.body.params.otherId
+                        );
+                        res.json({
+                            buttonText: "Send Friend Request",
+                        });
+                    } catch (err) {
+                        console.log("error removing fship", err);
+                    }
+                    //cancel DELETE  (canceling request - rejected)
+                    res.json({ buttonText: "Send Friend Request" });
+                }
+            }
+        }
+    } catch (err) {
+        console.log("error updating friendship status", err);
+    }
+});
+
 //// ### GET ++++ ROUTES
 
 app.get("/logout", (req, res) => {
     res.clearCookie("mytoken", { path: "/login" });
+    req.session.userId = null;
+    res.redirect("/");
+});
+
+app.get("/api/friendship-status/:otherId", async (req, res) => {
+    console.log("req.params.otherId", req.params.otherId);
+    try {
+        const { rows } = await db.findFriendshipStatus(
+            req.session.userId,
+            req.params.otherId
+        );
+        console.log("data", rows);
+        if (rows.length < 1) {
+            const buttonText = "Send Friend Request";
+            console.log("no friends relation yet");
+            res.json({ buttonText: "Send Friend Request" });
+        } else {
+            // a relation exists!
+            if (rows.accepted == true) {
+                // they ARE friends
+                res.json({ buttonText: "Unfriend this motherfo'" });
+            } else {
+                // pending request found
+                if (rows.recipient_id != req.session.userId) {
+                    res.json({ buttonText: "Cancel Friend Request" });
+                } else {
+                    res.json({ buttonText: "Accept request" });
+                }
+            }
+        }
+    } catch (err) {
+        console.log("error getting friendship-status/: ", err);
+    }
 });
 
 app.get("/api/recent-users/", async (req, res) => {

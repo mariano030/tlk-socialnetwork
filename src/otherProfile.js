@@ -4,12 +4,19 @@ import Axios from "./axios";
 import ProfilePic from "./profilePic.js";
 import BioEditor from "./bioEditor.js";
 import ModalMessage from "./modalMessage";
+import FriendButton from "./hooks/friendButton.js";
+//import { unmountComponentAtNode } from "react-dom";
+//import { UseFriendButton } from "./hooks/friendButton.js";
+
 export default class OtherProfile extends React.Component {
     constructor(props) {
         super(props);
         this.state = {};
     }
+
     async componentDidMount() {
+        //unmountComponentAtNode(document.getElementById("preload"));
+
         console.log("this.props.match", this.props.match);
         console.log("this.props.match.params", this.props.match.params);
         // if the user we are looking at and the user that is looking at it - send him/her to profile.js
@@ -44,13 +51,14 @@ export default class OtherProfile extends React.Component {
         //     this.props.history.push("/");
         // }
     }
-
     // maybe the don't render solution ivana had? below?
     render() {
         // const imageUrl = this.state.imageUrl;
         // const bio = this.state.bio;
         // or const { bla } = this.props
-        const { imageUrl, first, last, bio } = this.state;
+
+        console.log("this.props.match.params", this.props.match.params.id);
+        const { imageUrl, first, last, bio, userId } = this.state;
         console.log("imageUrl", imageUrl);
         // if (!greetee) {
         //     return "Loading...";
@@ -74,10 +82,14 @@ export default class OtherProfile extends React.Component {
                 )}
                 <div className="row">
                     <div className="column-left-40">
-                        <ProfilePic
-                            imageUrl={imageUrl}
-                            myClassName="profile-picture-large"
-                        />
+                        <div className="column-right">
+                            <ProfilePic
+                                imageUrl={imageUrl}
+                                myClassName="profile-picture-large"
+                            />
+
+                            <FriendButton userId={this.props.match.params.id} />
+                        </div>
                     </div>
                     <div className="column-left-top">
                         <h3>{first + " " + last}</h3>
