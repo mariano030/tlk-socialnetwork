@@ -14,7 +14,7 @@ export default class Welcome extends React.Component {
     }
     render() {
         return (
-            <div className="row">
+            <div className="row-left">
                 <div className="welcome">
                     <div className="center">
                         <Logo cssStyle={"logo-big"} />

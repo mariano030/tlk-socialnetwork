@@ -55,16 +55,15 @@ export default function FindPeople() {
 
     return (
         <div className="search-container">
-            <div className="row">
+            <div className="column">
                 <input
                     onChange={handleChange}
                     name="search"
                     type="text"
                     placeholder="search here"
                 />
-                <div className="button">AJAX</div>
+                <p>{title}</p>
             </div>
-            <p>{title}</p>
             <div className="result-list">
                 {users.map((user, i) => {
                     return (
