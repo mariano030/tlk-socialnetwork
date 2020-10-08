@@ -107,7 +107,7 @@ module.exports.findMostRecentUsers = () => {
     `);
 };
 
-module.exports.findFriendshipStatus = (userId, otherUserId) => {
+module.exports.getFriendshipStatus = (userId, otherUserId) => {
     const q = `
     SELECT * FROM friendships
     WHERE (recipient_id = $1 AND sender_id = $2)
@@ -116,27 +116,28 @@ module.exports.findFriendshipStatus = (userId, otherUserId) => {
     return db.query(q, params);
 };
 
-module.exports.insertNewFriendRequest = (userId, otherUserId) => {
-    const q = `
-    SELECT * FROM friendships
-    WHERE (recipient_id = $1 AND sender_id = $2)
-    OR (recipient_id = $2 AND sender_id = $1);`;
-    const params = [userId, otherUserId];
-    return db.query(q, params);
-};
+// module.exports.insertNewFriendRequest = (userId, otherUserId) => {
+//     const q = `
+//     SELECT * FROM friendships
+//     WHERE (recipient_id = $1 AND sender_id = $2)
+//     OR (recipient_id = $2 AND sender_id = $1);`;
+//     const params = [userId, otherUserId];
+//     return db.query(q, params);
+// };
 
 module.exports.acceptFriendship = (userId, otherUserId) => {
     const q = `
     UPDATE friendships 
-    SET accepted = true
+    SET accepted = $3
     WHERE (recipient_id = $1 AND sender_id = $2)`;
-    const params = [userId, otherUserId];
+    const accepted = true;
+    const params = [userId, otherUserId, accepted];
     return db.query(q, params);
 };
 
 module.exports.removeFriendship = (userId, otherUserId) => {
     const q = `
-    DELETE * 
+    DELETE FROM friendships 
     WHERE (recipient_id = $1 AND sender_id = $2) OR (sender_id = $1 AND recipient_id = $2)
     `;
     const params = [userId, otherUserId];
