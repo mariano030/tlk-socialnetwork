@@ -38,3 +38,8 @@
 // invalid csurf? was war das nochmal fürn fehler
 
 // use same credentials
+
+// useEffect can not use async operations - to use them,
+// you will have to add an iife. like so:
+// (async () => { console.log("async operation here") })();
+// other functions e.g. handleClick can be async

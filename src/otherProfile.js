@@ -82,7 +82,7 @@ export default class OtherProfile extends React.Component {
                 )}
                 <div className="row">
                     <div className="column-left-40">
-                        <div className="column-right">
+                        <div className="column">
                             <ProfilePic
                                 imageUrl={imageUrl}
                                 myClassName="profile-picture-large"

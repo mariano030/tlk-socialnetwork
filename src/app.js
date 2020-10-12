@@ -30,6 +30,7 @@ export default class App extends React.Component {
 
             uploaderIsVisible: false,
             cssStyle: null,
+            error: false,
         };
         this.toggleUploader = this.toggleUploader.bind(this);
         this.updateState = this.updateState.bind(this);
@@ -123,6 +124,11 @@ export default class App extends React.Component {
                         </div>
                     </header>
                     <div className="main-container">
+                        {this.state.error && (
+                            <div className="modal">
+                                Oh no! Something went wrong
+                            </div>
+                        )}
                         <Route
                             exact
                             path="/friends"

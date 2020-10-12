@@ -9,6 +9,12 @@ import { composeWithDevTools } from "redux-devtools-extension";
 import reducer from "./redux/reducer.js";
 import { Provider } from "react-redux";
 
+// socket.io
+import * as io from "socket.io-client";
+const socket = io.connect(); // starts a socket connection with server
+
+socket.on("welcome", (data) => console.log(data));
+
 const store = createStore(
     reducer,
     composeWithDevTools(applyMiddleware(reduxPromise))

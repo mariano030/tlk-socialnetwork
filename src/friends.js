@@ -47,15 +47,22 @@ export default function Friends(props) {
     //             return <p key={i}>{country}</p>
     //         })}
     if (friends === undefined) {
-        return "loading";
+        return (
+            <>
+                <img src="/img/coffee_cup.gif"></img>
+            </>
+        );
     } else {
         return (
             <>
-                <div className="row-left">
+                <div className="row">
                     {friends &&
                         friends.map((friend, i) => {
                             return (
-                                <div key={i}>
+                                <div key={i} className="column-center">
+                                    <div className="text">
+                                        Your Current Friends:
+                                    </div>
                                     <Link
                                         to={"/users/" + friend.id}
                                         className="link"
@@ -65,10 +72,10 @@ export default function Friends(props) {
                                             imageUrl={friend.image_url}
                                             myClassName="profile-picture"
                                         />
+                                        <div className="name">
+                                            {friend.first} {friend.last}
+                                        </div>
                                     </Link>
-                                    <div className="text">
-                                        {friend.first} {friend.last}
-                                    </div>
                                     <div
                                         className="button"
                                         onClick={() => {
@@ -81,11 +88,17 @@ export default function Friends(props) {
                             );
                         })}
                 </div>
-                <div className="row-left">
+                <div className="row">
                     {requests &&
                         requests.map((request, i) => {
                             return (
-                                <div key={i}>
+                                <div key={i} className="column">
+                                    <div className="white-line"></div>
+                                    <div className="text">
+                                        People that would like to become friends
+                                        with you:
+                                    </div>
+
                                     <Link
                                         to={"/users/" + request.id}
                                         className="link"
@@ -95,10 +108,10 @@ export default function Friends(props) {
                                             imageUrl={request.image_url}
                                             myClassName="profile-picture"
                                         />
+                                        <div className="name">
+                                            {request.first} {request.last}
+                                        </div>
                                     </Link>
-                                    <div className="text">
-                                        {request.first} {request.last}
-                                    </div>
                                     <div
                                         className="button"
                                         onClick={() => {

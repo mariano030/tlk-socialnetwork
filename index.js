@@ -1,5 +1,5 @@
 const express = require("express");
-const app = express();
+const app = express(); // returns an obj that represents the server
 const compression = require("compression");
 const db = require("./db.js");
 const { compare, hash } = require("./bc"); //
@@ -22,6 +22,32 @@ const path = require("path");
 const s3 = require("./s3");
 const config = require("./config");
 const { request } = require("http");
+
+// socket.io:
+const server = require("http").Server(app); // socket.io needs unmodified server obj - but we're handing it the express app (for anything that is not socket.io related)
+const io = require("socket.io")(server, { origins: "localhost:8080" });
+// server has to be handed to socket.io, give it a list of origins
+// after established handshake the browser creates a header with the protocol the hostname and the port
+// server can reject connection due to origins - reject other ppl from other sites
+// change app.listen to server.listen
+
+io.on("connect", (socket) => {
+    //this function will run every time a client connects
+    // socket refers to a connection
+    // every socket is one connection
+    console.log("socket with id ", socket.id, " just connected");
+    socket.emit("weclome", {
+        funy: "chicken",
+    });
+
+    socket.emit("someoneJoined", {
+        day: "monday",
+    });
+    socket.on("disconnect", () => {
+        console.log(`socket iwth id ${socket.id} just disconnected`);
+    });
+});
+// connection / connect / disconnect
 
 const diskStorage = multer.diskStorage({
     destination: function (req, file, callback) {
@@ -147,6 +173,7 @@ app.post("/updatebio", async (req, res) => {
         res.json(result);
     } catch (err) {
         console.log(err);
+        res.json({ error: true });
     }
 });
 
@@ -196,7 +223,10 @@ app.post("/password/reset/start", (req, res) => {
                 })
             );
         })
-        .catch(console.log("could not add RestCode to db or snd mail"));
+        .catch(() => {
+            console.log("could not add RestCode to db or snd mail");
+            res.json({ error: true });
+        });
 });
 
 app.post("/password/reset/code", async (req, res) => {
@@ -232,7 +262,7 @@ app.post("/password/reset/code", async (req, res) => {
         }
     } catch (e) {
         console.log(e);
-        res.json({ success: false });
+        res.json({ success: false, error: true });
     }
 });
 
@@ -356,6 +386,7 @@ app.post("/api/find-users/:searchedName", async (req, res) => {
         res.json(results.rows);
     } catch (err) {
         console.log("error finding usersByIncrement", err);
+        res.json({ error: true });
     }
 });
 
@@ -396,81 +427,8 @@ app.post("/api/update-friendship/", async (req, res) => {
         }
     } catch (err) {
         console.log("error update-friendship", err);
+        res.json({ error: true });
     }
-
-    // try {
-    //     const { rows } = await db.getFriendshipStatus(
-    //         req.session.userId,
-    //         req.body.params.otherId
-    //     );
-    //     console.log("rows", rows);
-    //     //console.log("result", result);
-    //     if (rows.length <= 0) {
-    //         // noch nix mit realation - wird ein request!
-    //         console.log("no relation yet");
-    //         try {
-    //             console.log("updating db newFriendshipRequest");
-    //             console.log(req.session.userId, req.body.params.otherId);
-    //             const { rows } = await db.sendFriendshipRequest(
-    //                 req.session.userId,
-    //                 req.body.params.otherId
-    //             );
-    //             console.log(rows);
-    //             res.json({ buttonText: "Cancel Friend Request" });
-    //         } catch (err) {
-    //             console.log(err);
-    //         }
-    //     } else {
-    //         console.log("relation found");
-    //         console.log(rows);
-    //         if (rows.accepted == true) {
-    //             // they are friends and should no longer be such
-    //             // unfriend DELTE
-    //             console.log("unfriend about to happen");
-    //             try {
-    //                 db.removeFriendship(
-    //                     req.session.id,
-    //                     req.body.params.otherId
-    //                 );
-    //                 res.json({ buttonText: "Send Friend Request" });
-    //             } catch (err) {
-    //                 console.log("error removing fship", err);
-    //             }
-    //         } else {
-    //             // a request is pending
-    //             if (rows.recipient_id == req.session.userId) {
-    //                 // accept UPDATE friend request == accept true
-    //                 try {
-    //                     db.acceptFriendship(
-    //                         req.session.id,
-    //                         req.body.params.otherId
-    //                     );
-
-    //                     res.json({ buttonText: "Unfriend" });
-    //                 } catch (err) {
-    //                     console.log("error accepting fship", err);
-    //                 }
-    //             } else {
-    //                 console.log("pending request - about to be deleted");
-    //                 try {
-    //                     db.removeFriendship(
-    //                         req.session.id,
-    //                         req.body.params.otherId
-    //                     );
-    //                     res.json({
-    //                         buttonText: "Send Friend Request",
-    //                     });
-    //                 } catch (err) {
-    //                     console.log("error removing fship", err);
-    //                 }
-    //                 //cancel DELETE  (canceling request - rejected)
-    //                 res.json({ buttonText: "Send Friend Request" });
-    //             }
-    //         }
-    //     }
-    // } catch (err) {
-    //     console.log("error updating friendship status", err);
-    // }
 });
 
 //// ### GET ++++ ROUTES
@@ -647,6 +605,7 @@ app.get("*", function (req, res) {
     }
 });
 
-app.listen(8080, function () {
+// changed from app.listen (express) for socket.io
+server.listen(8080, function () {
     console.log("I'm listening.");
 });
