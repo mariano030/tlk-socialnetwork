@@ -34,6 +34,7 @@ export default class App extends React.Component {
         };
         this.toggleUploader = this.toggleUploader.bind(this);
         this.updateState = this.updateState.bind(this);
+        this.toggleError = this.toggleError.bind(this);
     }
     async componentDidMount() {
         console.log("App just mounted");
@@ -44,11 +45,18 @@ export default class App extends React.Component {
             //console.log("state updated with", user.data);
         } catch (e) {
             console.log("error loading user data", e);
+            this.updateState({ error: true });
         }
         // a good place to make an axios request to our server
         // to get users information and put it in state
 
         // how to pass information to child elements?
+    }
+    toggleError() {
+        console.log("toggeling error modal");
+        this.setState({
+            error: !this.state.error,
+        });
     }
     toggleUploader() {
         console.log("toggle uploaderIsVisible");
@@ -68,16 +76,15 @@ export default class App extends React.Component {
     }
     render() {
         // if (!this.state.id) {
-        // return (
-        //     <img
-        //         src="/img/skeleton-not-dead.gif"
-        //         alt="still loading or loading unsuccessful"
-        //     ></img>
+        //     return (
+        //         <img
+        //             src="/img/coffee_cup.gif"
+        //             alt="still loading or loading unsuccessful"
+        //         ></img>
         //     );
         // maybe show a spinner?
         // maybe a skeleton element?
-
-        // } else {}
+        // } else {
         return (
             <>
                 <BrowserRouter>
@@ -126,7 +133,16 @@ export default class App extends React.Component {
                     <div className="main-container">
                         {this.state.error && (
                             <div className="modal">
-                                Oh no! Something went wrong
+                                <div className="column"></div>
+                                <div className="text">
+                                    Oh no! Something went wrong
+                                </div>
+                                <div
+                                    className="button"
+                                    onClick={this.toggleError}
+                                >
+                                    Ok
+                                </div>
                             </div>
                         )}
                         <Route
@@ -211,6 +227,7 @@ export default class App extends React.Component {
                 </BrowserRouter>
             </>
         );
+        // }
     }
 }
 
