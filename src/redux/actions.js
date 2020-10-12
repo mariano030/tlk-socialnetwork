@@ -40,7 +40,7 @@ export async function acceptRequest(userId) {
         });
         //// ****
         return {
-            type: "ACCEPT_FRIEND_REQUEST",
+            type: "ACCEPT_FRIENDSHIP",
             payload: userId,
         };
     } catch (err) {

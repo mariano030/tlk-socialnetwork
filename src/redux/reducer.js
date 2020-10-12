@@ -28,18 +28,19 @@ export default function reducer(state = {}, action) {
             // change .accepted for the user with id == payload
             state = {
                 ...state,
-                allFriendsAndRequests: allFriendsAndRequests.map((user) => {
-                    if (user.id == action.payload) {
-                        return {
-                            ...user,
-                            accepted: true,
-                        };
-                    } else {
-                        return user;
+                allFriendsAndRequests: state.allFriendsAndRequests.map(
+                    (user) => {
+                        if (user.id == action.payload) {
+                            return {
+                                ...user,
+                                accepted: true,
+                            };
+                        } else {
+                            return user;
+                        }
                     }
-                }),
+                ),
             };
-
             console.log("state after", state);
             break;
         case "END_FRIENDSHIP":
@@ -49,7 +50,7 @@ export default function reducer(state = {}, action) {
             // create new state
             state = {
                 ...state,
-                allFriendsAndRequests: allFriendsAndRequests.filter(
+                allFriendsAndRequests: state.allFriendsAndRequests.filter(
                     (user) => user.id != action.payload
                 ),
             };
