@@ -34,10 +34,31 @@ export async function getFriendsList() {
 export async function acceptRequest(userId) {
     console.log("action accept rq running");
     try {
-        // add user id to post req!!!
-        await axios.post("/api/update-friendship/");
+        //// ****
+        await axios.post("/api/update-friendship/", {
+            params: { otherId: userId },
+        });
+        //// ****
         return {
             type: "ACCEPT_FRIEND_REQUEST",
+            payload: userId,
+        };
+    } catch (err) {
+        console.log("error accepting freq", err);
+    }
+}
+
+export async function endFriendship(userId) {
+    console.log("action unfriendFriend rq running");
+    try {
+        //// ****
+        await axios.post("/api/update-friendship/", {
+            params: { otherId: userId },
+        });
+        //// ****
+        console.log("about to return action to reducer, userId", userId);
+        return {
+            type: "END_FRIENDSHIP",
             payload: userId,
         };
     } catch (err) {

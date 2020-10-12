@@ -44,7 +44,7 @@ export default class Login extends React.Component {
     render() {
         return (
             <div className="center">
-                <div className="text">Register now!</div>
+                <div className="text">Login now!</div>
                 {this.state.error && (
                     <div className="message-error">
                         Oops! Soemthing went wrong. Totally your fault.

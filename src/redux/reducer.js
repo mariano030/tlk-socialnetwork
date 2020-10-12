@@ -21,13 +21,14 @@ export default function reducer(state = {}, action) {
                 allFriendsAndRequests: action.payload, // whatever you called the key in actions.js
             };
             break;
-        case "ACCEPT_FRIEND_REQUEST":
-            console.log("state", state);
+        case "ACCEPT_FRIENDSHIP":
+            console.log("reducer END_FRIENDSHIP");
+            console.log("state before", state);
             // modify state
             // change .accepted for the user with id == payload
             state = {
                 ...state,
-                allFriendsAndRequests: allFriendsAndRequests.filter((user) => {
+                allFriendsAndRequests: allFriendsAndRequests.map((user) => {
                     if (user.id == action.payload) {
                         return {
                             ...user,
@@ -38,6 +39,21 @@ export default function reducer(state = {}, action) {
                     }
                 }),
             };
+
+            console.log("state after", state);
+            break;
+        case "END_FRIENDSHIP":
+            console.log("reducer END_FRIENDSHIP");
+            console.log("state in reducer", state);
+            console.log("allFriendsAndRequests", state.allFriendsAndRequests);
+            // create new state
+            state = {
+                ...state,
+                allFriendsAndRequests: allFriendsAndRequests.filter(
+                    (user) => user.id != action.payload
+                ),
+            };
+            console.log("state nach reducer", state);
             break;
     }
     return state;

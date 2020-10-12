@@ -2,7 +2,11 @@ import React from "react";
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { acceptRequest, getFriendsList } from "./redux/actions.js";
+import {
+    acceptRequest,
+    getFriendsList,
+    endFriendship,
+} from "./redux/actions.js";
 import ProfilePic from "./profilePic";
 
 export default function Friends(props) {
@@ -65,7 +69,12 @@ export default function Friends(props) {
                                     <div className="text">
                                         {friend.first} {friend.last}
                                     </div>
-                                    <div className="button width-full">
+                                    <div
+                                        className="button"
+                                        onClick={() => {
+                                            dispatch(endFriendship(friend.id));
+                                        }}
+                                    >
                                         Unfriend
                                     </div>
                                 </div>
