@@ -69,7 +69,6 @@ app.use(compression());
 app.use(function (req, res, next) {
     console.log("### method: ", req.method, "destination", req.url);
     if (req.session) {
-        console.log("req.session.id", req.session.id);
         console.log("req.session.userId", req.session.userId);
     }
     if (req.body) {
@@ -480,6 +479,29 @@ app.get("/logout", (req, res) => {
     res.clearCookie("mytoken", { path: "/login" });
     req.session.userId = null;
     res.redirect("/");
+});
+
+app.get("/api/get-friends-list", async (req, res) => {
+    console.log("getting the FRIENDS_LIST");
+    console.log("it's happening!!!!!!!!!! whoo hooo");
+    try {
+        const { rows } = await db.getFriendsList(req.session.userId);
+        console.log(rows);
+        res.json({ friendsRawArr: rows });
+    } catch (err) {
+        console.log("error getting the friends list ", err);
+        res.json({ error: true });
+    }
+});
+
+app.get("/api/get-friends-list", async (req, res) => {
+    try {
+        const { rows } = await db.getFriendsList(req.session.userId);
+        console.log(rows);
+    } catch (err) {
+        console.log("error getting friends-list ", err);
+        res.json({ error: true }); // error message??!
+    }
 });
 
 app.get("/api/friendship-status/:otherId", async (req, res) => {

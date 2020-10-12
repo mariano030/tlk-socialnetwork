@@ -18,3 +18,11 @@
 
 // alwasy deep clone!
 // optional chaining ?.
+
+// UPDATE redux state
+// call dispatch
+// give it an action
+// reducer executes the action
+
+// GET redux state
+// use useSelector

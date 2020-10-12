@@ -3,12 +3,20 @@ import Axios from "axios";
 import { BrowserRouter, Route, Link } from "react-router-dom";
 import { unmountComponentAtNode, render } from "react-dom";
 
+// redux
+import { createStore, applyMiddleware } from "redux";
+import reduxPromise from "redux-promise";
+import reducer from "./redux/reducer";
+
+const store = createStore(reducer, applyMiddleware(reduxPromise));
+
 import Logo from "./logo.js";
 import Profile from "./profile.js";
 import ProfilePic from "./profilePic.js";
 import Uploader from "./uploader.js";
 import OtherProfile from "./otherProfile.js";
 import FindPeople from "./findPeople.js";
+import Friends from "./friends.js";
 import ModalMessage from "./modalMessage";
 //import Example from "./example.js";
 
@@ -117,16 +125,28 @@ export default class App extends React.Component {
                     <div className="main-container">
                         <Route
                             exact
+                            path="/friends"
+                            render={() => (
+                                <>
+                                    <Friends />
+                                </>
+                            )}
+                        />
+                        <Route
+                            exact
                             path="/"
                             render={() => (
-                                <Profile
-                                    toggleUploader={this.toggleUploader}
-                                    updateState={this.updateState}
-                                    first={this.state.first}
-                                    last={this.state.last}
-                                    imageUrl={this.state.imageUrl}
-                                    bio={this.state.bio}
-                                />
+                                <>
+                                    <Friends />
+                                    <Profile
+                                        toggleUploader={this.toggleUploader}
+                                        updateState={this.updateState}
+                                        first={this.state.first}
+                                        last={this.state.last}
+                                        imageUrl={this.state.imageUrl}
+                                        bio={this.state.bio}
+                                    />
+                                </>
                             )}
                         />
                         <Route

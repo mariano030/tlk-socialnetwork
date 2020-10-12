@@ -3,11 +3,28 @@ import ReactDOM from "react-dom";
 
 import Welcome from "./logged_out/welcome.js";
 import App from "./app.js";
+import { createStore, applyMiddleware } from "redux";
+import reduxPromise from "redux-promise";
+import { composeWithDevTools } from "redux-devtools-extension";
+import reducer from "./redux/reducer.js";
+import { Provider } from "react-redux";
 
-let elem = <App />;
+const store = createStore(
+    reducer,
+    composeWithDevTools(applyMiddleware(reduxPromise))
+);
+
+let elem = (
+    <Provider store={store}>
+        {" "}
+        <App />{" "}
+    </Provider>
+);
+
+// let elem = <App />;
 
 if (location.pathname == "/welcome") {
-    elem = <Welcome />;
+    elem = <Welcome />; // does not have access to redux
 }
 
 ReactDOM.render(elem, document.querySelector("main"));
