@@ -15,6 +15,30 @@ main {
     height: 100vh;
 }
 
+.nav {
+    display:flex;
+    justify-content: flex-start;
+    height:40px;
+    position: absolute;
+
+    bottom: 0px;
+    background-color: darkred;
+    width: 100%;
+    color: white;
+}
+
+
+.nav-item {
+    width: 120px;
+    padding: 7px 7px 7px 7px;
+}
+
+.chat-container {
+    height: 350px;
+    width: 500px;
+    overflow-y: scroll;
+}
+
 img {
     object-fit: contain;
 }
@@ -50,6 +74,8 @@ img {
     text-shadow: 1px 1px rgb(94, 94, 94);
 }
 header {
+    position: relative;
+    height: 250px;
     display: flex;
     justify-content: space-between;
     background-image: url("img/audience_repeat_medium.png");
@@ -87,7 +113,7 @@ h4 {
     margin-top: 20px;
     border: 2px solid white;
     height:0px;
-    width: 100%
+    width: 40%
 }
 
 .name {
@@ -150,7 +176,7 @@ h4 {
         /* background-color: #ba382f; */
 }
 .message-error {
-    background-color: lightgray;
+
     color: red;
 }
 

@@ -60,9 +60,7 @@ export default function Friends(props) {
                         friends.map((friend, i) => {
                             return (
                                 <div key={i} className="column-center">
-                                    <div className="text">
-                                        Your Current Friends:
-                                    </div>
+                                    <div className="text">Your Friends:</div>
                                     <Link
                                         to={"/users/" + friend.id}
                                         className="link"
@@ -88,17 +86,19 @@ export default function Friends(props) {
                             );
                         })}
                 </div>
+                {requests.length > 0 && (
+                    <>
+                        <div className="white-line"></div>
+                        <div className="text">
+                            People that would like to be friends with you:
+                        </div>
+                    </>
+                )}
                 <div className="row">
                     {requests &&
                         requests.map((request, i) => {
                             return (
                                 <div key={i} className="column">
-                                    <div className="white-line"></div>
-                                    <div className="text">
-                                        People that would like to become friends
-                                        with you:
-                                    </div>
-
                                     <Link
                                         to={"/users/" + request.id}
                                         className="link"

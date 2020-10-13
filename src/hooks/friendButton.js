@@ -7,10 +7,8 @@ export default function FriendButton(props) {
     const [error, setError] = useState(false);
     console.log("props", props);
     const userId = props.userId;
-    // const getButtonText = (otherUserId) => {
-    //     console.log("getTextButton running");
-    // };
     const handleClick = () => {
+        // only useEffects needs an async iife other functions can be async themselves
         (async () => {
             try {
                 console.log("THE USER ID FOR THE OTHER PERSON", userId);
@@ -20,6 +18,7 @@ export default function FriendButton(props) {
                 setButtonText(data.buttonText);
             } catch (err) {
                 console.log("error updateing friend status", err);
+                setError(error); // this working?
             }
         })();
     };
@@ -43,10 +42,6 @@ export default function FriendButton(props) {
     // this component will be rendered in otherProfile - pass down other persons id
     // console.log(prop)
 
-    // when componenet mounts, in use Effect, make a request to the
-    // server to find out the relationship status with the user
-    // if button says bla -> specific db request
-
     if (buttonText == "loading") {
         return null;
     } else {
@@ -63,9 +58,4 @@ export default function FriendButton(props) {
 // server route - req to db to get friendship status
 // dynamic get route check-friends-status/:otherUserId
 
-// one post route or multiple -
-
-// if accepted is false where should it say what?
-// accept / pending
-
-// after changing friendship status - send new button Text for client
+// after changing friendship status - send new button Text for client!

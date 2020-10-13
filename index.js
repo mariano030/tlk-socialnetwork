@@ -21,32 +21,33 @@ const path = require("path");
 
 const s3 = require("./s3");
 const config = require("./config");
-const { request } = require("http");
+// const { request } = require("http");
 
 // socket.io:
+
 const server = require("http").Server(app); // socket.io needs unmodified server obj - but we're handing it the express app (for anything that is not socket.io related)
-const io = require("socket.io")(server, { origins: "localhost:8080" });
+const io = require("socket.io")(server, { origins: "localhost:8080" }); // add your live URL here
 // server has to be handed to socket.io, give it a list of origins
 // after established handshake the browser creates a header with the protocol the hostname and the port
 // server can reject connection due to origins - reject other ppl from other sites
 // change app.listen to server.listen
 
-io.on("connect", (socket) => {
-    //this function will run every time a client connects
-    // socket refers to a connection
-    // every socket is one connection
-    console.log("socket with id ", socket.id, " just connected");
-    socket.emit("weclome", {
-        funy: "chicken",
-    });
+// io.on("connect", (socket) => {
+//     //this function will run every time a client connects
+//     // socket refers to a connection
+//     // every socket is one connection
+//     console.log("socket with id ", socket.id, " just connected");
+//     socket.emit("weclome", {
+//         funy: "chicken",
+//     });
 
-    socket.emit("someoneJoined", {
-        day: "monday",
-    });
-    socket.on("disconnect", () => {
-        console.log(`socket iwth id ${socket.id} just disconnected`);
-    });
-});
+//     socket.emit("someoneJoined", {
+//         day: "monday",
+//     });
+//     socket.on("disconnect", () => {
+//         console.log(`socket iwth id ${socket.id} just disconnected`);
+//     });
+// });
 // connection / connect / disconnect
 
 const diskStorage = multer.diskStorage({
@@ -73,15 +74,25 @@ app.use(bodyParser.urlencoded({ extended: true })); // with extended:true you ca
 
 app.use(express.json());
 
-app.use(
-    cookieSession({
-        secret:
-            process.env.SESSION_SECRET ||
-            `The fat is in the fire, a fryer made of chicken wire.`,
-        maxAge: 1000 * 60 * 60 * 24 * 14,
-    })
-);
+const cookieSessionMiddleware = cookieSession({
+    secret: `Put yourself in your own shoes and stay away from all the busted pairs of timbs you don't use`,
+    maxAge: 1000 * 60 * 60 * 24 * 90,
+});
 
+app.use(cookieSessionMiddleware);
+io.use(function (socket, next) {
+    cookieSessionMiddleware(socket.request, socket.request.res, next);
+});
+//// old cookie session without sockets here
+// app.use(
+//     cookieSession({
+//         secret:
+//             process.env.SESSION_SECRET ||
+//             `The fat is in the fire, a fryer made of chicken wire.`,
+//         maxAge: 1000 * 60 * 60 * 24 * 14,
+//     })
+// );
+//
 app.use(csurf());
 
 app.use((req, res, next) => {
@@ -125,6 +136,21 @@ const friendshipText = [
     "Accept Friend Request",
 ];
 const friendshipAction = ["request", "unfriend", "cancel", "accept"];
+/// wip ---
+const FIRENDSHIP_TEXT = {
+    SEND: "Send Friend Request",
+    UNFRIEND: "Unfriend",
+    CANCEL: "Cancel Request",
+    ACCEPT: "Accept Friend Request",
+};
+
+const FRIENDSHIP_ACTION = {
+    SEND: "request",
+    UNFRIEND: "unfriend",
+    CANCEL: "cancel",
+    ACCEPT: "accept",
+};
+////////////////////////
 
 //////////////////////////////////////// FN() ///////////////
 const checkFriendship = function (rows, userId) {
@@ -133,12 +159,14 @@ const checkFriendship = function (rows, userId) {
     if (rows < 1) {
         console.log("!no relation!");
         friendshipCase = 0;
+        //friendshipCase = "SEND";
         console.log("send friend request");
     } else {
         console.log("rows[0].accepted", rows[0].accepted);
         if (rows[0].accepted == true) {
             console.log("rows[0].accepted == true!!");
             friendshipCase = 1;
+            //friendshipCase = "UNFRIEND";
             console.log("they are friends!");
             console.log("unfriend");
         } else {
@@ -146,10 +174,12 @@ const checkFriendship = function (rows, userId) {
             if (rows[0].recipient_id != userId) {
                 console.log("button viewer is sender");
                 friendshipCase = 2;
+                //friendshipCase = "CANCEL";
                 console.log("cancel friend request");
             } else {
                 console.log("button viewer is recipient");
                 friendshipCase = 3;
+                //friendshipCase = "ACCEPT";
                 console.log("accept friend request");
             }
         }
@@ -157,6 +187,7 @@ const checkFriendship = function (rows, userId) {
     const buttonText = friendshipText[friendshipCase];
     const buttonAction = friendshipAction[friendshipCase];
     return [buttonText, buttonAction];
+    //    return [buttonText[friendshipCase], buttonAction[friendshipCase]];
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -403,6 +434,7 @@ app.post("/api/update-friendship/", async (req, res) => {
             req.session.userId
         );
         //const friendshipAction = ["request", "unfriend", "cancel", "accept"]
+        // switch(buttonAction[friendshipCase]) ??
         switch (buttonAction) {
             case "request":
                 // insert row
@@ -434,7 +466,7 @@ app.post("/api/update-friendship/", async (req, res) => {
 //// ### GET ++++ ROUTES
 
 app.get("/logout", (req, res) => {
-    res.clearCookie("mytoken", { path: "/login" });
+    //res.clearCookie("mytoken", { path: "/login" });
     req.session.userId = null;
     res.redirect("/");
 });
@@ -607,5 +639,34 @@ app.get("*", function (req, res) {
 
 // changed from app.listen (express) for socket.io
 server.listen(8080, function () {
-    console.log("I'm listening.");
+    console.log("I'm listening. Starting  the rockets, with sockets");
 });
+
+// SERVER SOCKET
+io.on("connection", function (socket) {
+    if (!socket.request.session.userId) {
+        // checking for req.session cookie userId
+        return socket.disconnect(true);
+    }
+    console.log(`socket with the id ${socket.id} is now connected`);
+    const userId = socket.request.session.userId;
+    //now is the time to get the last 10 msgs
+    // db.getLastTenChatMessages().then((data) => {
+    //     console.log("data", data);
+    //     io.sockets.emit("chatMessages", data); // must be something you are listening for
+    // });
+    socket.on("newChatMessages", (newMessage) => {
+        console.log("newMessage", newMessage);
+        io.sockets.emit("chatMessage", newMessage); // do stuff from below
+        // get id and image
+        // now we know the message, we can add it to the
+        // chat table and (send it to the others?)
+        // need to look up info about the user/sender
+        // create a chat object
+        // EMIT chat object to Everyone
+        // save image_url and other data on sockets.socket.object??
+    });
+    /* ... */
+});
+
+// not logged in -

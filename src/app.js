@@ -18,6 +18,7 @@ import OtherProfile from "./otherProfile.js";
 import FindPeople from "./findPeople.js";
 import Friends from "./friends.js";
 import ModalMessage from "./modalMessage";
+import Chat from "./chat.js";
 //import Example from "./example.js";
 
 export default class App extends React.Component {
@@ -129,6 +130,12 @@ export default class App extends React.Component {
                             ></img> */}
                             </div>
                         </div>
+                        <div className="nav">
+                            <div className="nav-item">View Profile</div>
+                            <div className="nav-item">View Friends</div>
+                            <div className="nav-item">Search</div>
+                            <div className="nav-item">Talk</div>
+                        </div>
                     </header>
                     <div className="main-container">
                         {this.state.error && (
@@ -187,7 +194,8 @@ export default class App extends React.Component {
                             path="/members/"
                             render={(props) => <FindPeople />}
                         />
-
+                        {/* if we give props we need to use render= but with no porps use component= */}
+                        <Route exact path="/chat" component={Chat} />
                         {/* <Route path="/users:id" componnent={OtherProfile} /> */}
                         {/* <Example
                         first={this.state.first}

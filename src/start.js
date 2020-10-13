@@ -9,11 +9,13 @@ import { composeWithDevTools } from "redux-devtools-extension";
 import reducer from "./redux/reducer.js";
 import { Provider } from "react-redux";
 
-// socket.io
-import * as io from "socket.io-client";
-const socket = io.connect(); // starts a socket connection with server
+import { init } from "./socket.js";
 
-socket.on("welcome", (data) => console.log(data));
+// socket.io
+// import * as io from "socket.io-client";
+// const socket = io.connect(); // starts a socket connection with server
+
+// socket.on("welcome", (data) => console.log(data));
 
 const store = createStore(
     reducer,
@@ -31,6 +33,8 @@ let elem = (
 
 if (location.pathname == "/welcome") {
     elem = <Welcome />; // does not have access to redux
+} else {
+    init(store);
 }
 
 ReactDOM.render(elem, document.querySelector("main"));

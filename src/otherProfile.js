@@ -6,7 +6,6 @@ import BioEditor from "./bioEditor.js";
 import ModalMessage from "./modalMessage";
 import FriendButton from "./hooks/friendButton.js";
 //import { unmountComponentAtNode } from "react-dom";
-//import { UseFriendButton } from "./hooks/friendButton.js";
 
 export default class OtherProfile extends React.Component {
     constructor(props) {
@@ -19,18 +18,16 @@ export default class OtherProfile extends React.Component {
 
         console.log("this.props.match", this.props.match);
         console.log("this.props.match.params", this.props.match.params);
-        // if the user we are looking at and the user that is looking at it - send him/her to profile.js
-        // server should also let us know we are viewing our own page
         const requestUrl = "/api/other-user/" + this.props.match.params.id;
         console.log(requestUrl);
         try {
             const otherUser = await Axios.get(requestUrl);
-            //this.updateState(otherUser.data);
             if (otherUser.data.same) {
+                // sam is true if user is viewing his own page
                 this.props.history.push("/");
             } else if (!otherUser.data.first) {
                 console.log("user not found");
-                //this.props.history.goBack();
+                // alternative: this.props.history.goBack();
                 this.props.history.push("/");
                 // this.setState({
                 //     modalOpen: true,
@@ -46,10 +43,6 @@ export default class OtherProfile extends React.Component {
         } catch (err) {
             console.log("error", err);
         }
-        // if (this.props.match.params.otherId == 6) {
-        //     // userId
-        //     this.props.history.push("/");
-        // }
     }
     // maybe the don't render solution ivana had? below?
     render() {
@@ -60,9 +53,6 @@ export default class OtherProfile extends React.Component {
         console.log("this.props.match.params", this.props.match.params.id);
         const { imageUrl, first, last, bio, userId } = this.state;
         console.log("imageUrl", imageUrl);
-        // if (!greetee) {
-        //     return "Loading...";
-        // }
         return (
             <>
                 {/* {this.state.notFound && (
