@@ -3,12 +3,11 @@ import Axios from "axios";
 import { BrowserRouter, Route, Link } from "react-router-dom";
 import { unmountComponentAtNode, render } from "react-dom";
 
-// redux
-import { createStore, applyMiddleware } from "redux";
-import reduxPromise from "redux-promise";
-import reducer from "./redux/reducer";
-
-const store = createStore(reducer, applyMiddleware(reduxPromise));
+// redux  -> moved to start
+//import { createStore, applyMiddleware } from "redux";
+// import reduxPromise from "redux-promise";
+// import reducer from "./redux/reducer";
+//const store = createStore(reducer, applyMiddleware(reduxPromise)); -> moved to start
 
 import Logo from "./logo.js";
 import Profile from "./profile.js";
@@ -131,10 +130,16 @@ export default class App extends React.Component {
                             </div>
                         </div>
                         <div className="nav">
-                            <div className="nav-item">View Profile</div>
-                            <div className="nav-item">View Friends</div>
-                            <div className="nav-item">Search</div>
-                            <div className="nav-item">Talk</div>
+                            <Link
+                                to="/"
+                                className="nav-link"
+                                style={{ textDecoration: "none" }}
+                            >
+                                <div className="nav1">View Profile</div>
+                            </Link>
+                            <div className="nav2">View Friends</div>
+                            <div className="nav3">Search</div>
+                            <div className="nav4">Talk</div>
                         </div>
                     </header>
                     <div className="main-container">

@@ -6,10 +6,11 @@ export default function ProfilePic({
     last,
     imageUrl,
     myClassName,
+    myBorderClassName,
 }) {
     return (
         <>
-            <div className="profile-border">
+            <div className={myBorderClassName || "profile-border"}>
                 <img
                     src={imageUrl || "/img/default_avatar.png"}
                     alt={"Profile picture" + first + " " + last}

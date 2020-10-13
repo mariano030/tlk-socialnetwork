@@ -15,6 +15,8 @@ main {
     height: 100vh;
 }
 
+
+
 .nav {
     display:flex;
     justify-content: flex-start;
@@ -22,21 +24,80 @@ main {
     position: absolute;
 
     bottom: 0px;
-    background-color: darkred;
+
     width: 100%;
     color: white;
 }
 
+.nav-link {
+    color:white;
+    text-decoration: none;
+
+    
+}
 
 .nav-item {
     width: 120px;
     padding: 7px 7px 7px 7px;
 }
 
+.nav1 {
+    cursor: pointer;
+    width: 120px;
+    padding:  7px 20px 7px 20px;
+    background-color: #b8292b;
+        text-align: center;
+}
+
+.nav1:hover {
+    font-weight: 600;
+    color: #a82527;
+}
+
+.nav2 {
+    cursor: pointer;
+    width: 120px;
+    padding:  7px 20px 7px 20px;
+        text-align: center;
+    background-color: #7c8742;
+}
+
+.nav3 {
+    cursor: pointer;
+    width: 120px;
+    padding:  7px 20px 7px 20px;
+    text-align: center;
+    background-color: #e38c2f;
+}
+
+.nav4 {
+    cursor: pointer;
+    width: 120px;
+    padding:  7px 20px 7px 20px;
+    text-align: center;
+    background-color: #b8292b;
+}
 .chat-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
     height: 350px;
     width: 500px;
     overflow-y: scroll;
+    text-align: left;
+    background-color: #ffebc6;
+    color: black;
+}
+
+.chat-message-container{
+    margin-bottom: 10px;
+}
+
+.chat-input {
+    margin-top: 20px;
+    width: 495px;
+    height: 100px;
+
 }
 
 img {
@@ -237,6 +298,19 @@ button {
     height: 350px;
 }
 
+.profile-chat {
+    height: 20px;
+    width: 20px;
+    margin: 0px;
+    border: 2px solid white;
+}
+
+
+
+.profile-chat-border {
+    margin: 10px;
+}
+
 .modal {
     position: absolute;
     top: 50%;
@@ -377,8 +451,25 @@ textarea {
     width: 80%;
     display: flex;
     flex-direction: column;
-
 }
+
+.chat-info {
+    display:flex;
+    justify-content: row;
+    letter-spacing: 0.3em;
+    font-weight: 200;
+    font-size: 0.8em;
+} 
+.chat-date {
+    font-weight: 100;
+    font-size: small;
+    
+} 
+
+.chat-msg {
+
+} 
+
 a {
     text-decoration: none;
 }

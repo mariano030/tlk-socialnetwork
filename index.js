@@ -508,24 +508,6 @@ app.get("/api/friendship-status/:otherId", async (req, res) => {
             req.session.userId
         );
         res.json({ buttonText: buttonText });
-        // if (rows.length < 1) {
-        //     const buttonText = "Send Friend Request";
-        //     console.log("no friends relation yet");
-        //     res.json({ buttonText: "Send Friend Request" });
-        // } else {
-        //     // a relation exists!
-        //     if (rows.accepted == true) {
-        //         // they ARE friends
-        //         res.json({ buttonText: "Unfriend this motherfo'" });
-        //     } else {
-        //         // pending request found
-        //         if (rows.recipient_id != req.session.userId) {
-        //             res.json({ buttonText: "Cancel Friend Request" });
-        //         } else {
-        //             res.json({ buttonText: "Accept request" });
-        //         }
-        //     }
-        // }
     } catch (err) {
         console.log("error getting friendship-status/: ", err);
     }
@@ -564,7 +546,7 @@ app.get("/api/other-user/:userId", async (req, res) => {
                 email,
             } = result.rows[0];
             console.log("other user's data received");
-            console.log("userId: ", userId, first, last, imageUrl, email, bio);
+            //console.log("userId: ", userId, first, last, imageUrl, email, bio);
             console.log("i got the bio, no worries", bio);
             res.json({
                 first: first,
@@ -649,15 +631,29 @@ io.on("connection", function (socket) {
         return socket.disconnect(true);
     }
     console.log(`socket with the id ${socket.id} is now connected`);
-    const userId = socket.request.session.userId;
+    const userId = socket.request.session.userId; // thanks to new middleware setup!
+    console.log("UUUUUUUUUUUUUSER ID", userId);
     //now is the time to get the last 10 msgs
-    // db.getLastTenChatMessages().then((data) => {
-    //     console.log("data", data);
-    //     io.sockets.emit("chatMessages", data); // must be something you are listening for
-    // });
-    socket.on("newChatMessages", (newMessage) => {
-        console.log("newMessage", newMessage);
-        io.sockets.emit("chatMessage", newMessage); // do stuff from below
+    console.log("SERVER GETTING LAST 10 FROM DB:");
+    db.getLastTenChatMessages().then((data) => {
+        console.log("data", data.rows);
+        io.sockets.emit("chatMessages", data.rows); // must be something you are listening for
+    });
+    socket.on("newChatMsgFromClient", async (newMsg) => {
+        console.log("newChatMsgFromClient", newMsg);
+        console.log("emitting...");
+        try {
+            console.log("newChatMsgFromClient", newMsg);
+            console.log("AWAIT COMING NEXT");
+            console.log("userId ", userId);
+            await db.addNewChatMessage(userId, newMsg);
+            console.log("userId changed?", userId);
+            const newMessage = await db.getNewChatMessageUserInfo(userId);
+            console.log("lastMessage from db: ", newMessage.rows);
+            io.sockets.emit("newChatMsgFromServer", newMessage.rows[0]); // do stuff from below
+        } catch (err) {
+            console.log("error adding Chat Msg to DB", err);
+        }
         // get id and image
         // now we know the message, we can add it to the
         // chat table and (send it to the others?)

@@ -56,9 +56,37 @@ export default function reducer(state = {}, action) {
             };
             console.log("state nach reducer", state);
             break;
+        case "LOAD_TEN_CHAT":
+            console.log("reducer LAST_TEN running");
+            console.log("state in reducer", state);
+            console.log("about to add: ", action.payload);
+            // create new state
+            state = {
+                ...state,
+                chatMessages: action.payload,
+            };
+            console.log("state nach reducer", state);
+            break;
+        case "CHAT_NEW_MESSAGE":
+            console.log("reducer CHAT_NEW_MESSAGE running");
+            console.log("state in reducer", state);
+            console.log("about to add: ", action.payload);
+            // create new state
+            let newArr = state.chatMessages.slice().push(action.payload);
+            console.log("newArr", newArr);
+            state = {
+                ...state,
+                ...state.chatMeswages,
+                chatMessages: newArr,
+            };
+            console.log("state nach reducer", state);
+            break;
     }
     return state;
 }
+
+// type: "LOAD_TEN",
+// payload: messages,
 
 /// REDUCER NIMMT DATEN AN UND UPDATED STATE
 

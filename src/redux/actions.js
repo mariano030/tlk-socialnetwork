@@ -66,6 +66,20 @@ export async function endFriendship(userId) {
     }
 }
 
+export function loadLastTenChatMessages(messages) {
+    console.log(messages);
+    return {
+        type: "LOAD_TEN_CHAT",
+        payload: messages,
+    };
+}
+
+export function addNewMessage(newMessage) {
+    return {
+        type: "CHAT_NEW_MESSAGE",
+        payload: newMessage,
+    };
+}
 /*
 
             try {
