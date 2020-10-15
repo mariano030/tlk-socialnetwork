@@ -2,3 +2,4 @@ node_modules
 .DS_Store
 secrets.json
 /public/img/*.psd
+thoughts&prayers.js

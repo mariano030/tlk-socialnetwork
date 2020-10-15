@@ -16,7 +16,7 @@ export function fn() {
 
 export async function getFriendsList() {
     // hier kann ich alles machen!
-    console.log("ey die action läuft");
+    console.log("AAA - getFriendsList running");
     try {
         const result = await axios.get("/api/get-friends-list");
         console.log("result", result);
@@ -32,7 +32,7 @@ export async function getFriendsList() {
 }
 
 export async function acceptRequest(userId) {
-    console.log("action accept rq running");
+    console.log("AAA - action accept rq running");
     try {
         //// ****
         await axios.post("/api/update-friendship/", {
@@ -49,7 +49,7 @@ export async function acceptRequest(userId) {
 }
 
 export async function endFriendship(userId) {
-    console.log("action unfriendFriend rq running");
+    console.log("AAA - action unfriendFriend rq running");
     try {
         //// ****
         await axios.post("/api/update-friendship/", {
@@ -78,6 +78,15 @@ export function addNewMessage(newMessage) {
     return {
         type: "CHAT_NEW_MESSAGE",
         payload: newMessage,
+    };
+}
+
+export function updateOnlineUsersList(newOnlineUsersList) {
+    console.log("AAA - action updateOnlineUsersList runnig");
+    console.log("newOnlineUsersList", newOnlineUsersList);
+    return {
+        type: "OVERWRITE_ONLINE_USERS_LIST",
+        payload: newOnlineUsersList,
     };
 }
 /*

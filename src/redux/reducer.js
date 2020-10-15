@@ -61,6 +61,7 @@ export default function reducer(state = {}, action) {
             console.log("state in reducer", state);
             console.log("about to add: ", action.payload);
             // create new state
+            action.payload.reverse();
             state = {
                 ...state,
                 chatMessages: action.payload,
@@ -72,15 +73,22 @@ export default function reducer(state = {}, action) {
             console.log("state in reducer", state);
             console.log("about to add: ", action.payload);
             // create new state
-            let newArr = state.chatMessages.slice().push(action.payload);
+            let newArr = state.chatMessages.slice();
+            newArr.push(action.payload);
             console.log("newArr", newArr);
             state = {
                 ...state,
-                ...state.chatMeswages,
                 chatMessages: newArr,
             };
             console.log("state nach reducer", state);
             break;
+        case "OVERWRITE_ONLINE_USERS_LIST":
+            console.log("reducer OVERWRITE_ONLINE_USERS_LIST runnin");
+            console.log("action.payload: ", action.payload);
+            state = {
+                ...state,
+                onlineUsersDetails: action.payload,
+            };
     }
     return state;
 }

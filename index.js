@@ -568,7 +568,6 @@ app.get("/api/user", async (req, res) => {
     try {
         console.log("db querry for userId", req.session.userId);
         const result = await db.getUserById(req.session.userId);
-        console.log(result);
         const {
             id: userId,
             first,
@@ -625,20 +624,77 @@ server.listen(8080, function () {
 });
 
 // SERVER SOCKET
-io.on("connection", function (socket) {
+
+let onlineUsers = {};
+let onlineUsersIds = [];
+
+io.on("connection", async function (socket) {
+    /////// USER JOINED !!!
     if (!socket.request.session.userId) {
         // checking for req.session cookie userId
         return socket.disconnect(true);
     }
-    console.log(`socket with the id ${socket.id} is now connected`);
+    // list of online users
     const userId = socket.request.session.userId; // thanks to new middleware setup!
-    console.log("UUUUUUUUUUUUUSER ID", userId);
+    onlineUsers[socket.id] = userId;
+
+    console.log(`socket with the id ${socket.id} is now connected`);
+    console.log("my userId ", userId);
+    console.log("######### ONLINE UESRS #####", onlineUsers);
+    console.log("CHECKKK onlineUsersIds: ", onlineUsersIds);
+
+    for (let socket in onlineUsers) {
+        onlineUsersIds.push(onlineUsers[socket]);
+    }
+    console.log("CHECKKKKKKK onlineUsersIds: (one added?)", onlineUsersIds);
+    onlineUsersIds = [...new Set(onlineUsersIds)]; // eliminate duplicates
+    console.log("onlineUsersIds after Set", onlineUsersIds);
+    // LETS DO THIS IN FRONTEND  let onlineUsersIdsWithouthMe = onlineUsersIds.filter((id) => id != userId);
+    //    LETS DO THIS IN FRONTEND console.log("onlineUsersIdsWithouthMe: ", onlineUsersIdsWithouthMe);
+    try {
+        const onlineUsersDetails = await db.getUsersByIds(onlineUsersIds);
+        console.log(
+            "the users currently online have the following details ",
+            onlineUsersDetails.rows
+        );
+        io.sockets.emit("newOnlineUsersList", onlineUsersDetails.rows);
+    } catch (err) {
+        console.log(";( - an error occured while trying to getUsersByIds", err);
+    }
+
+    // user joins...
+    // am i already present here? other window open?
+    // yes - send list of online users without me
+    // no - send list of online users without me
+
+    // emit list of all users currently online
+    //  onlineUsers in Redux!
+    // this socket will be emitted ONLY to the user who just connected
+    // io.to(socketId).emit("userJoined", onlineUsers);
+    // create an array of JUST userIds currently online
+    // pass the arrray to db query, that takes this array and returns info about it's users
+    // emit list to joining user
+
+    // emit user who joined
+    // takes user who jointed and sends it to all connected users / sockets EXCEPT
+    // make sure user who just connected, does not already exist in online users
+    // emit msg "user just joined" to all users currently online
+
+    // emit user who left
+    // if it is last instance of user leaving - emit to all users (new list)
+
     //now is the time to get the last 10 msgs
-    console.log("SERVER GETTING LAST 10 FROM DB:");
-    db.getLastTenChatMessages().then((data) => {
-        console.log("data", data.rows);
-        io.sockets.emit("chatMessages", data.rows); // must be something you are listening for
+
+    /////// USER OPENED CHAT !!!
+    socket.on("chatOpened", () => {
+        console.log("SERVER GETTING LAST 10 CHAT MSGS FROM DB:");
+        db.getLastTenChatMessages().then((data) => {
+            //console.log("data", data.rows);
+            console.log("success - emitting to client");
+            io.sockets.emit("chatMessages", data.rows); // must be something you are listening for
+        });
     });
+    /////// USER SENT NEW MESSAGE !!!
     socket.on("newChatMsgFromClient", async (newMsg) => {
         console.log("newChatMsgFromClient", newMsg);
         console.log("emitting...");
@@ -646,7 +702,10 @@ io.on("connection", function (socket) {
             console.log("newChatMsgFromClient", newMsg);
             console.log("AWAIT COMING NEXT");
             console.log("userId ", userId);
-            await db.addNewChatMessage(userId, newMsg);
+            const newMessageWithTimeStamp = await db.addNewChatMessage(
+                userId,
+                newMsg
+            );
             console.log("userId changed?", userId);
             const newMessage = await db.getNewChatMessageUserInfo(userId);
             console.log("lastMessage from db: ", newMessage.rows);
@@ -654,13 +713,63 @@ io.on("connection", function (socket) {
         } catch (err) {
             console.log("error adding Chat Msg to DB", err);
         }
-        // get id and image
-        // now we know the message, we can add it to the
-        // chat table and (send it to the others?)
-        // need to look up info about the user/sender
-        // create a chat object
-        // EMIT chat object to Everyone
-        // save image_url and other data on sockets.socket.object??
+    });
+    /////// USER DISCONNECTED !!!
+    socket.on("disconnect", async () => {
+        console.log("socket.id", socket.id);
+        console.log(
+            "userId closed at least one window",
+            onlineUsers[socket.id]
+        );
+        //console.log("io.sockets: ", io.sockets.sockets);
+        console.log("users that were here just a second ago: ", onlineUsers);
+        let disconnectedUserId = onlineUsers[socket.id];
+        delete onlineUsers[socket.id];
+        console.log("SOCKET REMOVED FROM SOCKET-ID OBJ");
+        console.log("onlineUsers after delete: ", onlineUsers);
+        let usersConnections = 0;
+        console.log("disconnectedUserId ?? ", disconnectedUserId);
+        for (const property in onlineUsers) {
+            if (onlineUsers[property] == disconnectedUserId) {
+                console.log("the user is still present");
+                usersConnections++;
+            }
+        }
+        if (usersConnections == 0) {
+            console.log("the user really disconnected", onlineUsersIds);
+            console.log(" -- -- - - - - - - before ", onlineUsersIds);
+            onlineUsersIds = onlineUsersIds.filter((each) => each != userId);
+            onlineUsersIds = onlineUsersIds.filter(function (
+                value,
+                index,
+                arr
+            ) {
+                return value != disconnectedUserId;
+            });
+            console.log("onlineUsersIds filtered:");
+            console.log(" -- -- - - - - - -after ", onlineUsersIds);
+
+            try {
+                const updatedOnlineUsersDetails = await db.getUsersByIds(
+                    onlineUsersIds
+                );
+                console.log(
+                    "updatedOnlineUsersDetails.rows",
+                    updatedOnlineUsersDetails.rows
+                );
+                //onlineUsersIds.filter((each) => each != disconnectedUserId);
+                io.sockets.emit(
+                    "newOnlineUsersList",
+                    updatedOnlineUsersDetails.rows
+                );
+                //delete onlineUsers[socket.id];
+            } catch (err) {
+                console.log(
+                    "error occured on disconnect refres online Users",
+                    err
+                );
+            }
+        }
     });
     /* ... */
 });

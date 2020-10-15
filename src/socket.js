@@ -1,5 +1,9 @@
 import * as io from "socket.io-client";
-import { loadLastTenChatMessages, addNewMessage } from "./redux/actions.js";
+import {
+    loadLastTenChatMessages,
+    addNewMessage,
+    updateOnlineUsersList,
+} from "./redux/actions.js";
 // will need to import relevant actions later!!
 
 export let socket;
@@ -16,6 +20,10 @@ export const init = (store) => {
             console.log("newChatMsgFromServer:", newMessage);
             // dispatch an action (using an cation creator)
             store.dispatch(addNewMessage(newMessage));
+        });
+        socket.on("newOnlineUsersList", (onlineUsersArr) => {
+            console.log("SSSS socket - onlineUsersArr", onlineUsersArr);
+            store.dispatch(updateOnlineUsersList(onlineUsersArr));
         });
     }
 };

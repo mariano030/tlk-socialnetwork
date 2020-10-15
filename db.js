@@ -167,9 +167,10 @@ module.exports.getFriendsList = (userId) => {
 
 module.exports.getLastTenChatMessages = () => {
     const q = `
-    SELECT users.id, users.image_url, users.first, users.last, * from chat
+    SELECT users.id, users.image_url, users.first, users.last, message, chat.created_at from chat
     JOIN users
     ON (sender_id = users.id)
+    ORDER BY chat.created_at DESC
     LIMIT 10
     `;
     const params = [];
@@ -188,14 +189,20 @@ module.exports.addNewChatMessage = (sender_id, message) => {
 
 module.exports.getNewChatMessageUserInfo = (userId) => {
     const q = `
-    SELECT users.id, users.image_url, users.first, users.last, * from chat
+    SELECT users.id, users.image_url, users.first, users.last, message, chat.created_at from chat
     JOIN users
     ON (chat.sender_id = users.id)
     WHERE chat.sender_id = $1
-
+    ORDER BY chat.id DESC
     LIMIT 1
     `;
+    // created_at
     // not needed     ORDER BY chat.created_at ASC
     const params = [userId];
     return db.query(q, params);
+};
+
+module.exports.getUsersByIds = (arrayOfIds) => {
+    const query = `SELECT id, first, last, image_url FROM users WHERE id = ANY($1)`;
+    return db.query(query, [arrayOfIds]);
 };

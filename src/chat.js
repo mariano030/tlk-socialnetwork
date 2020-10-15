@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from "react";
+import ReactTimeAgo from "react-time-ago";
 import { socket } from "./socket.js";
 import { useSelector } from "react-redux";
 import ProfilePic from "./profilePic.js";
@@ -14,8 +15,10 @@ export default function Chat(props) {
             elemRef.current.scrollHeight - elemRef.current.clientHeight;
     }
     useEffect(() => {
+        socket.emit("chatOpened");
+    }, []);
+    useEffect(() => {
         // update scroll postition every time a chat message comes in!
-        console.log("useEff ect Running ...");
         console.log("elemRef.current", elemRef.current);
         // do math for scrolling
         console.log("elemRef.current.scrollTop:", elemRef.current.scrollTop); // current position   0
@@ -72,14 +75,15 @@ export default function Chat(props) {
                                     <div>
                                         <p className="chat-info">
                                             <strong>
-                                                {message.first} {message.last}
+                                                {message.first} {message.last}{" "}
                                             </strong>
                                             <span className="chat-date">
-                                                {" " +
-                                                    message.created_at.substring(
-                                                        0,
-                                                        10
-                                                    )}
+                                                {" "}
+                                                <ReactTimeAgo
+                                                    date={message.created_at}
+                                                    locale="en-US"
+                                                    timeStyle="round-minute"
+                                                />{" "}
                                             </span>
                                         </p>
                                         <p className="chat-msg">

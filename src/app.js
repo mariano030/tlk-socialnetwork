@@ -9,6 +9,13 @@ import { unmountComponentAtNode, render } from "react-dom";
 // import reducer from "./redux/reducer";
 //const store = createStore(reducer, applyMiddleware(reduxPromise)); -> moved to start
 
+/// TIME AGO
+import TimeAgo from "javascript-time-ago";
+import en from "javascript-time-ago/locale/en";
+
+TimeAgo.addDefaultLocale(en);
+
+// COMPONENTS
 import Logo from "./logo.js";
 import Profile from "./profile.js";
 import ProfilePic from "./profilePic.js";
@@ -18,7 +25,8 @@ import FindPeople from "./findPeople.js";
 import Friends from "./friends.js";
 import ModalMessage from "./modalMessage";
 import Chat from "./chat.js";
-//import Example from "./example.js";
+import OnlineUsers from "./onlineUsers";
+import PrivateChat from "./privateChat";
 
 export default class App extends React.Component {
     constructor(props) {
@@ -137,11 +145,30 @@ export default class App extends React.Component {
                             >
                                 <div className="nav1">View Profile</div>
                             </Link>
-                            <div className="nav2">View Friends</div>
-                            <div className="nav3">Search</div>
-                            <div className="nav4">Talk</div>
+                            <Link
+                                to="/friends"
+                                className="nav-link"
+                                style={{ textDecoration: "none" }}
+                            >
+                                <div className="nav2">View Friends</div>
+                            </Link>
+                            <Link
+                                to="/members"
+                                className="nav-link"
+                                style={{ textDecoration: "none" }}
+                            >
+                                <div className="nav3">Search</div>
+                            </Link>
+                            <Link
+                                to="/chat"
+                                className="nav-link"
+                                style={{ textDecoration: "none" }}
+                            >
+                                <div className="nav4">Talk</div>
+                            </Link>
                         </div>
                     </header>
+                    <OnlineUsers userId={this.state.userId} />
                     <div className="main-container">
                         {this.state.error && (
                             <div className="modal">
@@ -171,7 +198,6 @@ export default class App extends React.Component {
                             path="/"
                             render={() => (
                                 <>
-                                    <Friends />
                                     <Profile
                                         toggleUploader={this.toggleUploader}
                                         updateState={this.updateState}
@@ -186,12 +212,18 @@ export default class App extends React.Component {
                         <Route
                             path="/users/:id"
                             render={(props) => (
-                                <OtherProfile
-                                    key={props.url}
-                                    match={props.match}
-                                    history={props.history}
-                                    updateState={this.updateState}
-                                />
+                                <>
+                                    <OtherProfile
+                                        key={props.url}
+                                        match={props.match}
+                                        history={props.history}
+                                        updateState={this.updateState}
+                                    />
+                                    <PrivateChat
+                                        match={props.match}
+                                        history={props.history}
+                                    />
+                                </>
                             )}
                         />
 

@@ -23,7 +23,7 @@ main {
     height:40px;
     position: absolute;
 
-    bottom: 0px;
+    bottom: -4px;
 
     width: 100%;
     color: white;
@@ -37,13 +37,13 @@ main {
 }
 
 .nav-item {
-    width: 120px;
+    width: 122px;
     padding: 7px 7px 7px 7px;
 }
 
 .nav1 {
     cursor: pointer;
-    width: 120px;
+    width: 122px;
     padding:  7px 20px 7px 20px;
     background-color: #b8292b;
         text-align: center;
@@ -56,7 +56,7 @@ main {
 
 .nav2 {
     cursor: pointer;
-    width: 120px;
+    width: 122px;
     padding:  7px 20px 7px 20px;
         text-align: center;
     background-color: #7c8742;
@@ -64,7 +64,7 @@ main {
 
 .nav3 {
     cursor: pointer;
-    width: 120px;
+    width: 122px;
     padding:  7px 20px 7px 20px;
     text-align: center;
     background-color: #e38c2f;
@@ -72,11 +72,35 @@ main {
 
 .nav4 {
     cursor: pointer;
-    width: 120px;
+    width: 122px;
     padding:  7px 20px 7px 20px;
     text-align: center;
     background-color: #b8292b;
 }
+
+.online-users {
+    display:flex;
+    justify-content:flex-start;
+    position: fixed;
+    bottom: 0px;
+}
+
+.online-users-border {
+    margin: 0px;
+    padding: 8px;
+}
+
+.online-single-user {
+    background-color: #b8292b;
+    margin: 0px 3px 0px 0px;
+    padding: 2px 15px 2px 5px;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    border-right: solid 3px #ffbf43;
+}
+
 .chat-container {
     display: flex;
     flex-direction: column;
@@ -97,7 +121,6 @@ main {
     margin-top: 20px;
     width: 495px;
     height: 100px;
-
 }
 
 img {
@@ -461,8 +484,10 @@ textarea {
     font-size: 0.8em;
 } 
 .chat-date {
+
     font-weight: 100;
-    font-size: small;
+    font-size: 0.8em;
+    text-align: right;
     
 } 
 
